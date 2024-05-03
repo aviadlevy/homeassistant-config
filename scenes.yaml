@@ -1,4 +1,4 @@
-- id: '1647415675488'
+- id: 'lights_out'
   name: Lights Out
   entities:
     light.bathroom_switch:
@@ -88,7 +88,7 @@
       entity_only: true
     fan.living_room_fan:
       entity_only: true
-- id: '1660670564932'
+- id: 'shabbat_sunset'
   name: Shabbat 0 Sunset
   entities:
     light.bathroom_bulb:
@@ -159,7 +159,7 @@
       entity_only: true
     light.bathroom_switch:
       entity_only: true
-- id: '1660672796760'
+- id: 'shabbat_evening'
   name: Shabbat 1 Evening
   entities:
     light.living_room_door_small:
@@ -223,7 +223,7 @@
       entity_only: true
     light.kids_light:
       entity_only: true
-- id: '1660672972481'
+- id: 'shabbat_night'
   name: Shabbat 2 Goodnight
   entities:
     light.living_room_lights:
@@ -312,7 +312,7 @@
       entity_only: true
     cover.switcher_runner:
       entity_only: true
-- id: '1660676471620'
+- id: 'shabbat_morning_cloud'
   name: Shabbat 3 Morning Cloudy
   entities:
     light.kitchen_switch:
@@ -356,7 +356,7 @@
       entity_only: true
     light.kids_light:
       entity_only: true
-- id: '1660676515170'
+- id: 'shabbat_morning'
   name: Shabbat 3 Morning
   entities:
     light.kitchen_switch:
@@ -405,7 +405,7 @@
       entity_only: true
     light.bed_led_strip:
       entity_only: true
-- id: '1660895875544'
+- id: 'fans_out'
   name: Fans out
   entities:
     fan.bedroom_fan:
@@ -430,7 +430,7 @@
     fan.office_fan:
       entity_only: true
   icon: mdi:fan-off
-- id: '1660895975876'
+- id: 'shabbat_bedroom_fan'
   name: Shabbat Bedroom Fans On
   entities:
     fan.bedroom_fan:
@@ -450,7 +450,7 @@
       entity_only: true
     fan.living_room_fan:
       entity_only: true
-- id: '1660896061578'
+- id: 'shabbat_fans_on'
   name: Shabbat Fans On
   entities:
     fan.bedroom_fan:
@@ -470,7 +470,7 @@
     fan.living_room_fan:
       entity_only: true
   icon: mdi:fan
-- id: '1688117536501'
+- id: 'shabbat_living_room_fan'
   name: Shabbat Living Room Fans On
   entities:
     fan.bedroom_fan:

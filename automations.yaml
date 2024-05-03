@@ -1,4 +1,4 @@
-- id: '1644953215113'
+- id: night_environment_routine
   alias: Night environment routine
   description: ''
   trigger:
@@ -71,7 +71,7 @@
         data:
           position: 19
   mode: single
-- id: '1644954529072'
+- id: backlight_tv
   alias: Backlight TV
   description: ''
   trigger:
@@ -153,7 +153,7 @@
         entity_id: light.wled_backlight_tv
   mode: queued
   max: 10
-- id: '1644954734959'
+- id: alert_sleep_notification
   alias: Alert sleep notification
   description: ''
   trigger:
@@ -184,7 +184,7 @@
           seconds: 0
           milliseconds: 0
   mode: single
-- id: '1646346810030'
+- id: mode_changer_shabbat
   alias: Mode changer - Shabbat
   description: Turns Shabbos Mode ON/OFF depending on existing mode
   trigger:
@@ -258,7 +258,7 @@
         enabled: true
     default: []
   mode: single
-- id: '1646388432126'
+- id: shabbat_0
   alias: Shabbat 0 - shabbat entrance routine
   description: On mode change to shabbat mode, activate the scene and notify
   trigger:
@@ -377,7 +377,7 @@
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
-- id: '1646393128306'
+- id: mode_changer_away
   alias: Mode changer - Away
   description: Turns Away Mode ON/OFF depending on existing mode
   trigger:
@@ -412,7 +412,7 @@
           option: Home
     default: []
   mode: single
-- id: '1646394078887'
+- id: shabbat_5
   alias: Shabbat 5 - shabbat exists routine
   description: On mode change to shabbat mode, activate the scene and notify
   trigger:
@@ -451,7 +451,7 @@
       - media_player.sonos_kitchen
       - media_player.sonos_kids_bedroom
   mode: single
-- id: '1646633847457'
+- id: lights_out
   alias: Lights out
   description: ''
   trigger:
@@ -473,7 +473,7 @@
       entity_id: scene.lights_out
     metadata: {}
   mode: single
-- id: '1647949944518'
+- id: kitchen_md
   alias: Kitchen motion detection
   description: ''
   trigger:
@@ -526,7 +526,7 @@
     target:
       entity_id: light.kitchen_switch
   mode: single
-- id: '1648053145755'
+- id: bed_md
   alias: Bed motion detection
   description: ''
   trigger:
@@ -586,7 +586,7 @@
     target:
       entity_id: light.bed_led_strip
   mode: restart
-- id: '1648127832690'
+- id: light_on_door
   alias: Lights on when opening door
   description: ''
   trigger:
@@ -651,7 +651,7 @@
     target:
       entity_id: light.entrance_bulb
   mode: restart
-- id: '1649427888891'
+- id: shabbat_1
   alias: Shabbat 1 - candle light plag
   description: ''
   trigger:
@@ -681,7 +681,7 @@
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
   mode: single
-- id: '1649791850962'
+- id: alert_high_temp
   alias: Alert when high temperature
   description: ''
   trigger:
@@ -700,7 +700,7 @@
       message: Temperature is {{ states("sensor.processor_temperature") }}
       title: Temperature is too high
   mode: single
-- id: '1650213843794'
+- id: alert_omer
   alias: Alert when Sfirat HaOmer
   description: ''
   trigger:
@@ -760,7 +760,7 @@
     target:
       entity_id: media_player.sonos_living_room
   mode: single
-- id: '1651078198109'
+- id: alert_washing_machine_finished
   alias: Alert when washing machine finished
   description: ''
   use_blueprint:
@@ -837,7 +837,7 @@
       finishing_threshold: 3
   trace:
     stored_traces: 10
-- id: '1651162570334'
+- id: alert_phone_low_battery_aviad
   alias: Alert when phone low battery - Aviad
   description: ''
   trigger:
@@ -918,7 +918,7 @@
           target:
             entity_id: input_boolean.longer_low_battery_snooze
   mode: single
-- id: '1651162644995'
+- id: alert_phone_low_battery_noga
   alias: Alert when phone low battery - Noga
   description: ''
   trigger:
@@ -942,7 +942,7 @@
     data:
       message: Low battery
   mode: single
-- id: '1654164069617'
+- id: tag_scanned_parent_bathroom
   alias: Tag parent bathroom is scanned
   description: ''
   trigger:
@@ -955,7 +955,7 @@
     target:
       entity_id: light.parents_bathroom_lights
   mode: single
-- id: '1659637909830'
+- id: lights_washing_machine_finished
   alias: Light routine when washing machine finished
   description: ''
   trigger:
@@ -1010,7 +1010,7 @@
     target:
       entity_id: light.balcony_bulb
   mode: single
-- id: '1660078813493'
+- id: shabbat_guests
   alias: Guests for Shabbat
   description: ''
   trigger:
@@ -1025,7 +1025,7 @@
     target:
       entity_id: input_boolean.guests_shabbat_dinner
   mode: single
-- id: '1660670422064'
+- id: shabbat_2
   alias: Shabbat 2 - lights scenes
   description: ''
   trigger:
@@ -1180,7 +1180,7 @@
     default: []
   mode: queued
   max: 10
-- id: '1660895835560'
+- id: shabbat_3
   alias: Shabbat 3 - fans scenes
   description: ''
   trigger:
@@ -1272,7 +1272,7 @@
         metadata: {}
     default: []
   mode: single
-- id: '1663180889697'
+- id: tag_scanned_waching_machine
   alias: Washing machine tag state
   description: ''
   trigger:
@@ -1300,7 +1300,7 @@
     target:
       entity_id: input_boolean.washing_machine_tag_scanned
   mode: single
-- id: '1666246243749'
+- id: zigbee_switch_balcony
   alias: Zigbee balcony switch automation
   description: ''
   use_blueprint:
@@ -1320,7 +1320,7 @@
           color_temp: 153
         target:
           entity_id: light.balcony_bulb
-- id: '1666247080855'
+- id: zigbee_switch_parents_bathroom
   alias: Zigbee parents bathroom switch automation
   description: ''
   use_blueprint:
@@ -1343,7 +1343,7 @@
         data: {}
         target:
           entity_id: light.parents_bathroom_lights
-- id: '1668170191497'
+- id: alert_kitchen_espresense_down
   alias: Alert when kitchen Espresense is down
   description: ''
   trigger:
@@ -1361,7 +1361,7 @@
     data:
       message: Kitchen espresense is down
   mode: single
-- id: '1668351350104'
+- id: alert_download_finished
   alias: Alert when download is finished
   description: ''
   trigger:
@@ -1387,7 +1387,7 @@
           uri: /db21ed7f_qbittorrent/dashboard
         tag: download-finished
   mode: restart
-- id: '1668716168995'
+- id: ble_transimitter_active_when_home
   alias: BLE transmitter active only at home
   description: ''
   trigger:
@@ -1432,7 +1432,7 @@
         data:
           command: turn_on
   mode: single
-- id: '1669146404067'
+- id: showert_morning
   alias: Shower in the morning
   description: ''
   trigger:
@@ -1456,7 +1456,7 @@
     target:
       entity_id: input_boolean.morning_shower
   mode: single
-- id: '1670590224715'
+- id: vacuum_when_away
   alias: Vacuum when away
   description: ''
   trigger:
@@ -1486,7 +1486,7 @@
     target:
       entity_id: input_boolean.vacuum_when_away
   mode: single
-- id: '1672298229334'
+- id: kids_heater_routine
   alias: Kids heater climate routine
   description: ''
   trigger:
@@ -1522,7 +1522,7 @@
     target:
       entity_id: climate.kids_bedroom
   mode: single
-- id: '1672299107507'
+- id: kids_heater_switch
   alias: Kids heater climate - connect to switch
   description: ''
   trigger:
@@ -1552,7 +1552,7 @@
     target:
       entity_id: climate.kids_bedroom
   mode: single
-- id: '1672657980362'
+- id: mobile_event_longer_battery_notification_snooze
   alias: Mobile Event Fired - Longer low notification snooze
   description: ''
   trigger:
@@ -1567,31 +1567,7 @@
     target:
       entity_id: input_boolean.longer_low_battery_snooze
   mode: single
-- id: '1673812847687'
-  alias: Automatic irrigation
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:00:00
-  condition:
-  - condition: template
-    value_template: '{{ now().timestamp() > as_timestamp(states(''input_datetime.esph_irrigation_system_triggered''))
-      + 86400 }}'
-  - condition: state
-    entity_id: input_boolean.irrigation_enabled
-    state: 'on'
-  - condition: time
-    weekday:
-    - mon
-    - wed
-    - fri
-  action:
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.irrigation_switch
-  mode: single
-- id: '1676395022701'
+- id: kids_heater_hass_restart
   alias: Kids heater when home assistant restart
   description: ''
   trigger:
@@ -1614,7 +1590,7 @@
     target:
       entity_id: climate.kids_bedroom
   mode: single
-- id: '1677147119745'
+- id: alert_cloudy_day
   alias: Alert when cluody day
   description: ''
   trigger:
@@ -1676,7 +1652,7 @@
         data:
           tag: cloudy-day-alert
   mode: single
-- id: '1681326213154'
+- id: alert_kitchen_occupancy_unavailable
   alias: Alert when kitchen occupancy is unavailable
   description: ''
   trigger:
@@ -1739,7 +1715,7 @@
         message: Current state is {{states.binary_sensor.kitchen_occupancy_sensor_occupancy.state
           }}
   mode: single
-- id: '1682067587190'
+- id: backlight_tv_music
   alias: Backlight TV Music
   description: ''
   trigger:
@@ -1789,7 +1765,7 @@
     target:
       entity_id: light.wled_backlight_tv
   mode: restart
-- id: '1683660762413'
+- id: hyperion_activation
   alias: Hyperion Activation
   description: ''
   trigger:
@@ -1816,7 +1792,7 @@
     - service: script.disable_hyperion
       data: {}
   mode: single
-- id: '1685549691683'
+- id: alert_noga_heading_home
   alias: Alert when Noga is heading home
   description: ''
   trigger:
@@ -1852,7 +1828,7 @@
       data:
         tag: noga-headed-home
   mode: single
-- id: '1687102366896'
+- id: office_md
   alias: Office motion detection
   description: ''
   trigger:
@@ -1906,7 +1882,7 @@
       entity_id:
       - light.office_desk_light
   mode: restart
-- id: '1704053268211'
+- id: one_time_automation_noga_home
   alias: One-time automation - Alert when Nogs is home
   description: ''
   trigger:
@@ -1919,7 +1895,7 @@
   action:
   - service: notify.mobile_app_noga_phone
     data:
-      title: להזריק
+      title: תזכורת
       message: "\U0001F489"
     enabled: true
   - service: automation.turn_off
@@ -1929,7 +1905,7 @@
       stop_actions: true
     enabled: true
   mode: single
-- id: '1704263036762'
+- id: dismiss_Alert_when_charging
   alias: Dismiss alert when charging
   description: ''
   trigger:
@@ -1945,7 +1921,7 @@
       data:
         tag: aviad_low_battery
   mode: single
-- id: '1704737630088'
+- id: alert_when_raining
   alias: Alert when raining
   description: ''
   trigger:
@@ -2019,7 +1995,7 @@
           data:
             tag: rain-alert
   mode: single
-- id: '1704738280912'
+- id: night_env_routine_shutter
   alias: Night environment routine - shutter
   description: ''
   trigger:
@@ -2036,7 +2012,7 @@
       - cover.switcher_runner
     data: {}
   mode: single
-- id: '1704992416749'
+- id: alert_sonos_roam_low_battery
   alias: Alert on low Sonos Roam battery
   description: ''
   use_blueprint:
@@ -2045,7 +2021,7 @@
       battery_entity: sensor.kids_bedroom_battery
       battery_level: 40
       notify_device: 4214920656084e3e0376f9a6c7b2eb48
-- id: '1705342829835'
+- id: hyperion_per_app
   alias: Hyperion Activation per app
   description: ''
   trigger:
@@ -2107,7 +2083,7 @@
       target:
         entity_id: input_boolean.hyperion_activation
   mode: single
-- id: '1706165921313'
+- id: alert_and_speak_day_agenda
   alias: Alert and speak day agenda
   description: ''
   trigger:
@@ -2371,7 +2347,7 @@
       target:
         entity_id: light.entrance_bulb
   mode: queued
-- id: '1706597378103'
+- id: alert_picking_yair
   alias: Alert when picking Yair
   description: ''
   trigger:
@@ -2412,7 +2388,7 @@
       message: '{{ service_result[''todo.things_yair_took_to_school''][''items'']
         | map(attribute=''summary'') | join('' '') }}'
   mode: single
-- id: '1706632881399'
+- id: who_pick_kids
   alias: Who's picking the kids
   description: ''
   trigger:
@@ -2445,7 +2421,7 @@
         target:
           entity_id: input_select.who_picking_the_kids
   mode: single
-- id: '1706877709544'
+- id: shabbat_4
   alias: Shabbat 4 - rain routine
   description: ''
   trigger:
@@ -2517,7 +2493,7 @@
         data: {}
     default: []
   mode: single
-- id: '1706991258991'
+- id: alert_work_profile
   alias: Alert work profile
   description: ''
   trigger:
@@ -2601,7 +2577,7 @@
       data:
         tag: work-profile
   mode: single
-- id: '1707024200710'
+- id: alert_and_speak_day_agenda_test
   alias: Alert and speak day agenda - testing
   description: ''
   trigger:
@@ -2736,7 +2712,7 @@
       - media_player.sonos_kitchen
     enabled: true
   mode: single
-- id: '1707044846061'
+- id: one_time_automation_office_md
   alias: One time automation - office motion
   description: ''
   trigger:
@@ -2758,7 +2734,7 @@
       stop_actions: true
     enabled: true
   mode: single
-- id: '1707939497941'
+- id: alert_pending_updates
   alias: Alert when pending updates
   description: ''
   use_blueprint:
@@ -2822,7 +2798,7 @@
       only_after: 08:00:00
       only_before: '22:00:00'
       mobile_app_device_2: 4214920656084e3e0376f9a6c7b2eb48
-- id: '1710425485919'
+- id: zigbee_switch_closet
   alias: Zigbee closet switch automation
   description: ''
   use_blueprint:
@@ -2837,7 +2813,7 @@
         target:
           entity_id: light.closet_bulb
       on_action: []
-- id: '1711644707513'
+- id: echo_volume_routine
   alias: Bedroom Echo volume routine
   description: ''
   trigger:
@@ -2887,7 +2863,7 @@
       data:
         volume_level: 0.6
   mode: single
-- id: '1713185504883'
+- id: home_wifi_routine
   alias: Home WIFI connection routine
   description: ''
   trigger:
@@ -2921,7 +2897,7 @@
         payload: not_home
         retain: true
   mode: single
-- id: '1713942830317'
+- id: shabbat_1_5
   alias: Shabbat 1.5 - Kriat Shma when early shabbat
   description: ''
   trigger:
@@ -2950,7 +2926,7 @@
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
   mode: single
-- id: '1714075345006'
+- id: test
   alias: test
   description: ''
   trigger: []
