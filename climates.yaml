@@ -1,0 +1,29 @@
+- platform: generic_thermostat
+  unique_id: climate_kids_bedroom
+  name: Kids Bedroom
+  heater: switch.smart_plug_il
+  target_sensor: sensor.kids_temperature
+  target_temp: 18.5
+  cold_tolerance: 0.3
+  hot_tolerance: 0.2
+  ac_mode: false
+  initial_hvac_mode: "off"
+  min_cycle_duration:
+    minutes: 20
+
+- platform: generic_thermostat
+  name: RPI Cooling Fan Controller
+  unique_id: rpi_cooling_fan_controller
+  heater: switch.rpi_cooling_fan
+  target_sensor: sensor.processor_temperature
+  min_temp: 40
+  max_temp: 80
+  ac_mode: true
+  target_temp: 57
+  cold_tolerance: 6
+  hot_tolerance: 3
+  min_cycle_duration:
+    minutes: 4
+  keep_alive:
+    minutes: 5
+  initial_hvac_mode: "cool"

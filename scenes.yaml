@@ -1,0 +1,495 @@
+- id: '1647415675488'
+  name: Lights Out
+  entities:
+    light.bathroom_switch:
+      friendly_name: Bathroom Switch
+      state: 'off'
+    switch.smart_plug_kids_bedroom:
+      friendly_name: Smart Plug Kids Bedroom
+      state: 'off'
+    light.closet_bulb:
+      friendly_name: Closet Bulb Light
+      state: 'off'
+    light.parent_bathroom_bulb:
+      friendly_name: Parent Bathroom Bulb Light
+      state: 'off'
+    light.kitchen_switch:
+      friendly_name: Kitchen Switch Light
+      state: 'off'
+    fan.bedroom_fan:
+      friendly_name: Bedroom Fan
+      state: 'off'
+    fan.kids_fan:
+      friendly_name: Kids Fan
+      state: 'off'
+    fan.office_fan:
+      friendly_name: Office Fan
+      state: 'off'
+    light.office_light:
+      friendly_name: Office Light
+      state: 'off'
+    light.kids_light:
+      friendly_name: Kids Light
+      state: 'off'
+    light.bedroom_light:
+      friendly_name: Bedroom Light
+      state: 'off'
+    light.balcony_bulb:
+      friendly_name: Balcony Bulb
+      state: 'off'
+    light.parent_bathroom_small_bulb:
+      friendly_name: Parent Bathroom Bulb
+      state: 'off'
+    light.living_room_door_large:
+      friendly_name: Living Room Door Large
+      state: 'off'
+    light.living_room_door_small:
+      friendly_name: Living Room Door Small Light
+      state: 'off'
+    light.living_room_window_large:
+      friendly_name: Living Room Window Large
+      state: 'off'
+    light.living_room_window_small:
+      friendly_name: Living Room Window Small
+      state: 'off'
+    light.entrance_bulb:
+      friendly_name: Entrance Switch
+      state: 'off'
+    fan.living_room_fan:
+      friendly_name: Living Room Fan
+      state: 'off'
+  icon: mdi:lightbulb-group-off-outline
+  metadata:
+    fan.bedroom_fan:
+      entity_only: true
+    fan.kids_fan:
+      entity_only: true
+    fan.office_fan:
+      entity_only: true
+    light.office_light:
+      entity_only: true
+    light.kids_light:
+      entity_only: true
+    light.bedroom_light:
+      entity_only: true
+    light.balcony_bulb:
+      entity_only: true
+    light.parent_bathroom_small_bulb:
+      entity_only: true
+    light.living_room_door_large:
+      entity_only: true
+    light.living_room_door_small:
+      entity_only: true
+    light.living_room_window_large:
+      entity_only: true
+    light.living_room_window_small:
+      entity_only: true
+    light.entrance_bulb:
+      entity_only: true
+    fan.living_room_fan:
+      entity_only: true
+- id: '1660670564932'
+  name: Shabbat 0 Sunset
+  entities:
+    light.bathroom_bulb:
+      friendly_name: Bathroom Bulb
+      state: 'on'
+    light.bathroom_switch:
+      friendly_name: Bathroom Switch
+      state: 'on'
+    light.kitchen_switch:
+      friendly_name: Kitchen Switch Light
+      state: 'on'
+    light.parent_bathroom_bulb:
+      friendly_name: Parent Bathroom Bulb Light
+      state: 'on'
+    light.bed_led_strip:
+      friendly_name: Bed Led Strip
+      state: 'off'
+    light.bedroom_light:
+      friendly_name: Kids Light
+      state: 'off'
+    light.office_light:
+      friendly_name: Office Light
+      state: 'off'
+    light.closet_bulb:
+      friendly_name: Closet Bulb Light
+      state: 'on'
+    light.closet_switch:
+      friendly_name: Closet Switch
+      state: 'on'
+    light.living_room_door_large:
+      friendly_name: Living Room Door Large
+      state: 'on'
+    light.living_room_door_small:
+      friendly_name: Living Room Door Small Light
+      state: 'on'
+    light.living_room_window_large:
+      friendly_name: Living Room Window Large
+      state: 'on'
+    light.living_room_window_small:
+      friendly_name: Living Room Window Small
+      state: 'on'
+  metadata:
+    light.bathroom_bulb:
+      entity_only: true
+    light.kitchen_switch:
+      entity_only: true
+    light.parent_bathroom_bulb:
+      entity_only: true
+    light.bed_led_strip:
+      entity_only: true
+    light.bedroom_light:
+      entity_only: true
+    light.kids_light:
+      entity_only: true
+    light.office_light:
+      entity_only: true
+    light.closet_bulb:
+      entity_only: true
+    light.closet_switch:
+      entity_only: true
+    light.living_room_door_large:
+      entity_only: true
+    light.living_room_door_small:
+      entity_only: true
+    light.living_room_window_large:
+      entity_only: true
+    light.living_room_window_small:
+      entity_only: true
+    light.bathroom_switch:
+      entity_only: true
+- id: '1660672796760'
+  name: Shabbat 1 Evening
+  entities:
+    light.living_room_door_small:
+      friendly_name: Living Room Door Small Light
+      state: 'off'
+    light.living_room_door_large:
+      friendly_name: Living Room Door Large
+      state: 'off'
+    light.living_room_window_large:
+      friendly_name: Living Room Window Large
+      state: 'on'
+    light.living_room_window_small:
+      friendly_name: Living Room Window Small
+      state: 'off'
+    light.kitchen_switch:
+      friendly_name: Kitchen Switch Light
+      state: 'on'
+    light.bed_led_strip:
+      state: 'on'
+    light.closet_bulb:
+      state: 'off'
+    light.parent_bathroom_bulb:
+      friendly_name: Parent Bathroom Bulb Light
+      state: 'on'
+    light.bathroom_bulb:
+      friendly_name: Bathroom Bulb
+      state: 'on'
+    light.bathroom_switch:
+      friendly_name: Bathroom Switch
+      state: 'on'
+    switch.smart_plug_kids_bedroom:
+      friendly_name: Smart Plug Kids Bedroom
+      state: 'on'
+    light.kids_light:
+      friendly_name: Kids Light
+      state: 'off'
+  metadata:
+    light.living_room_door_small:
+      entity_only: true
+    light.living_room_door_large:
+      entity_only: true
+    light.living_room_window_large:
+      entity_only: true
+    light.living_room_window_small:
+      entity_only: true
+    light.kitchen_switch:
+      entity_only: true
+    light.bed_led_strip:
+      entity_only: true
+    light.closet_bulb:
+      entity_only: true
+    light.closet_switch:
+      entity_only: true
+    light.parent_bathroom_bulb:
+      entity_only: true
+    light.bathroom_bulb:
+      entity_only: true
+    light.bathroom_switch:
+      entity_only: true
+    switch.smart_plug_kids_bedroom:
+      entity_only: true
+    light.kids_light:
+      entity_only: true
+- id: '1660672972481'
+  name: Shabbat 2 Goodnight
+  entities:
+    light.living_room_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      entity_id:
+      - light.living_room_door_large
+      - light.living_room_door_small
+      - light.living_room_window_large
+      - light.living_room_window_small
+      icon: mdi:lightbulb-group
+      friendly_name: Living Room Lights
+      supported_features: 8
+      state: 'off'
+    light.kitchen_switch:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Kitchen Switch תאורה
+      supported_features: 8
+      state: 'off'
+    light.bed_led_strip:
+      icon: mdi:led-strip-variant
+      friendly_name: Bed Led Strip
+      state: 'off'
+    light.balcony_bulb:
+      friendly_name: Balcony Bulb Light
+      state: 'off'
+    light.bedroom_light:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      friendly_name: Bedroom Light
+      supported_features: 0
+      state: 'off'
+    light.entrance_bulb:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      friendly_name: Entrance Switch
+      supported_features: 0
+      state: 'off'
+    light.office_light:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      friendly_name: Office Light
+      supported_features: 0
+      state: 'off'
+    light.kids_light:
+      friendly_name: Kids Light
+      state: 'off'
+    light.parent_bathroom_bulb:
+      state: 'on'
+    light.bathroom_bulb:
+      friendly_name: Bathroom Bulb Light
+      state: 'on'
+    switch.smart_plug_kids_bedroom:
+      friendly_name: Smart Plug Kids Bedroom
+      state: 'on'
+  metadata:
+    light.living_room_lights:
+      entity_only: true
+    light.kitchen_switch:
+      entity_only: true
+    light.bed_led_strip:
+      entity_only: true
+    light.balcony_bulb:
+      entity_only: true
+    light.bedroom_light:
+      entity_only: true
+    light.entrance_bulb:
+      entity_only: true
+    light.office_light:
+      entity_only: true
+    light.kids_light:
+      entity_only: true
+    light.parent_bathroom_bulb:
+      entity_only: true
+    light.bathroom_bulb:
+      entity_only: true
+    switch.smart_plug_kids_bedroom:
+      entity_only: true
+    cover.switcher_runner:
+      entity_only: true
+- id: '1660676471620'
+  name: Shabbat 3 Morning Cloudy
+  entities:
+    light.kitchen_switch:
+      friendly_name: Kitchen Switch Light
+      state: 'on'
+    light.closet_bulb:
+      friendly_name: Closet Bulb Light
+      state: 'on'
+    light.closet_switch:
+      friendly_name: Closet Switch
+      state: 'on'
+    light.living_room_window_small:
+      friendly_name: Living Room Window Small
+      state: 'on'
+    light.living_room_window_large:
+      friendly_name: Living Room Window Large
+      state: 'on'
+    light.living_room_door_large:
+      friendly_name: Living Room Door Large
+      state: 'on'
+    light.living_room_door_small:
+      friendly_name: Living Room Door Small Light
+      state: 'on'
+    light.kids_light:
+      friendly_name: Kids Light
+      state: 'on'
+  metadata:
+    light.kitchen_switch:
+      entity_only: true
+    light.closet_bulb:
+      entity_only: true
+    light.closet_switch:
+      entity_only: true
+    light.living_room_window_small:
+      entity_only: true
+    light.living_room_window_large:
+      entity_only: true
+    light.living_room_door_large:
+      entity_only: true
+    light.living_room_door_small:
+      entity_only: true
+    light.kids_light:
+      entity_only: true
+- id: '1660676515170'
+  name: Shabbat 3 Morning
+  entities:
+    light.kitchen_switch:
+      friendly_name: Kitchen Switch Light
+      state: 'on'
+    light.living_room_lights:
+      entity_id:
+      - light.living_room_door_large
+      - light.living_room_door_small
+      - light.living_room_window_large
+      - light.living_room_window_small
+      icon: mdi:lightbulb-group
+      friendly_name: Living Room Lights
+      state: 'off'
+    light.bathroom_bulb:
+      friendly_name: Bathroom Bulb
+      state: 'on'
+    light.bathroom_switch:
+      friendly_name: Bathroom Switch
+      state: 'on'
+    light.parent_bathroom_bulb:
+      friendly_name: Parent Bathroom Bulb Light
+      state: 'on'
+    light.closet_bulb:
+      friendly_name: Closet Bulb Light
+      state: 'on'
+    light.closet_switch:
+      friendly_name: Closet Switch
+      state: 'on'
+    light.bed_led_strip:
+      icon: mdi:led-strip-variant
+      friendly_name: Bed Led Strip
+      state: 'off'
+  metadata:
+    light.kitchen_switch:
+      entity_only: true
+    light.living_room_lights:
+      entity_only: true
+    light.bathroom_bulb:
+      entity_only: true
+    light.bathroom_switch:
+      entity_only: true
+    light.parent_bathroom_bulb:
+      entity_only: true
+    light.closet_bulb:
+      entity_only: true
+    light.bed_led_strip:
+      entity_only: true
+- id: '1660895875544'
+  name: Fans out
+  entities:
+    fan.bedroom_fan:
+      friendly_name: Bedroom Fan
+      state: 'off'
+    fan.kids_fan:
+      friendly_name: Kids Fan
+      state: 'off'
+    fan.living_room_fan:
+      friendly_name: Living Room Fan
+      state: 'off'
+    fan.office_fan:
+      friendly_name: Office Fan
+      state: 'off'
+  metadata:
+    fan.bedroom_fan:
+      entity_only: true
+    fan.kids_fan:
+      entity_only: true
+    fan.living_room_fan:
+      entity_only: true
+    fan.office_fan:
+      entity_only: true
+  icon: mdi:fan-off
+- id: '1660895975876'
+  name: Shabbat Bedroom Fans On
+  entities:
+    fan.bedroom_fan:
+      friendly_name: Bedroom Fan
+      state: 'on'
+    fan.kids_fan:
+      friendly_name: Kids Fan
+      state: 'on'
+    fan.living_room_fan:
+      friendly_name: Living Room Fan
+      state: 'off'
+  icon: mdi:fan
+  metadata:
+    fan.bedroom_fan:
+      entity_only: true
+    fan.kids_fan:
+      entity_only: true
+    fan.living_room_fan:
+      entity_only: true
+- id: '1660896061578'
+  name: Shabbat Fans On
+  entities:
+    fan.bedroom_fan:
+      friendly_name: Bedroom Fan
+      state: 'on'
+    fan.kids_fan:
+      friendly_name: Kids Fan
+      state: 'on'
+    fan.living_room_fan:
+      friendly_name: Living Room Fan
+      state: 'on'
+  metadata:
+    fan.bedroom_fan:
+      entity_only: true
+    fan.kids_fan:
+      entity_only: true
+    fan.living_room_fan:
+      entity_only: true
+  icon: mdi:fan
+- id: '1688117536501'
+  name: Shabbat Living Room Fans On
+  entities:
+    fan.bedroom_fan:
+      friendly_name: Bedroom Fan
+      supported_features: 0
+      state: 'off'
+    fan.kids_fan:
+      friendly_name: Kids Fan
+      supported_features: 0
+      state: 'off'
+    fan.living_room_fan:
+      friendly_name: Living Room Fan
+      supported_features: 0
+      state: 'on'
+  metadata:
+    fan.bedroom_fan:
+      entity_only: true
+    fan.kids_fan:
+      entity_only: true
+    fan.living_room_fan:
+      entity_only: true
+  icon: mdi:fan

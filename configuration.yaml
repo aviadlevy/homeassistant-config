@@ -1,0 +1,33 @@
+default_config:
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+sensor: !include sensors.yaml
+switch: !include switches.yaml
+group: !include groups.yaml
+zone: !include zones.yaml
+http: !include http.yaml
+climate: !include climates.yaml
+notify: !include notify.yaml
+command_line: !include command_line.yaml
+shell_command: !include shell_commands.yaml
+recorder: !include recorder.yaml
+google_assistant: !include google_assistant.yaml
+logbook: !include logbook.yaml
+tts: !include tts.yaml
+telegram_bot: !include telegram_bot.yaml
+mqtt: !include mqtt.yaml
+emulated_hue: !include emulated_hue.yaml
+
+duckdns:
+  domain: aviadlevy
+  access_token: !secret duckdns_token
+
+jewish_calendar:
+  candle_lighting_minutes_before_sunset: 105
+  language: hebrew
+
+logger:
+  default: warning
+

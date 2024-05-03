@@ -1,0 +1,113 @@
+set_up_sonos_group:
+  alias: Set up sonos group casting
+  sequence:
+  - service: media_player.volume_mute
+    data:
+      is_volume_muted: false
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+      - media_player.sonos_kitchen
+      - media_player.sonos_kids_bedroom
+  - service: media_player.join
+    data:
+      group_members:
+      - media_player.sonos_living_room
+      - media_player.sonos_kids_bedroom
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.35
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.5
+    target:
+      entity_id: media_player.sonos_kids_bedroom
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.3
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  mode: single
+  icon: mdi:cast-connected
+run_switcher_from_input:
+  alias: Run Switcher From Input
+  sequence:
+  - service: switcher_kis.turn_on_with_timer
+    data:
+      timer_minutes: '{{ states(''input_number.switcher_timer_box'') | int }}'
+    target:
+      entity_id: switch.switcher_home
+  mode: single
+  icon: mdi:camera-timer
+activate_hyperion:
+  alias: Activate Hyperion
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      command: am start com.abrenoch.hyperiongrabber/com.abrenoch.hyperiongrabber.common.BootActivity
+    target:
+      entity_id: media_player.mitv_adb
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.hyperion_component_led_device
+  mode: single
+  icon: mdi:television
+disable_hyperion:
+  alias: Disable Hyperion
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      command: am start com.abrenoch.hyperiongrabber/com.abrenoch.hyperiongrabber.common.ToggleActivity
+    target:
+      entity_id: media_player.mitv_adb
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      color_temp: 500
+      brightness_pct: 11
+      effect: Solid
+    target:
+      entity_id: light.wled_backlight_tv
+    enabled: true
+  - service: light.turn_on
+    data:
+      color_temp: 288
+      brightness_pct: 50
+      effect: Solid
+      transition: 15
+    target:
+      entity_id: light.wled_backlight_tv
+    enabled: true
+  mode: single
+clean_carpet:
+  alias: Clean Carpet
+  sequence:
+  - service: dreame_vacuum.vacuum_clean_zone
+    data:
+      repeats: 2
+      zone:
+      - - -510
+        - 676
+        - 1423
+        - 1796
+    target:
+      entity_id: vacuum.dreame_robot_vacuum_d9
+  mode: single
+  icon: mdi:rug

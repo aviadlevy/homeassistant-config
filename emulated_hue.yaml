@@ -1,0 +1,14 @@
+host_ip: !secret hass_host_ip
+listen_port: 80
+expose_by_default: true
+exposed_domains:
+  - light
+  - fan
+  - cover
+entities:
+  light.kitchen_switch:
+    name: "Kitchen Light"
+  light.hyperion:
+    hidden: true
+  light.texas_instruments_cc1352_cc2652_z_stack_3_30_build_20220219_living_room_lights_zha_group_0x0002:
+    hidden: true

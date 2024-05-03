@@ -1,0 +1,5 @@
+- platform: rpi_gpio
+  switches:
+    - port: 14
+      name: "RPI Cooling Fan"
+      unique_id: "rpi_cooling_fan"

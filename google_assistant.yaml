@@ -1,0 +1,34 @@
+project_id: !secret google_home_project_id
+service_account: !include SERVICE_ACCOUNT.json
+report_state: true
+exposed_domains:
+  - switch
+  - light
+  - fan
+  - scene
+  - climate
+  - cover
+  - vacuum
+entity_config:
+  switch.adaptive_lighting_adapt_brightness_adaptive_light:
+    expose: false
+  switch.adaptive_lighting_adapt_color_adaptive_light:
+    expose: false
+  switch.adaptive_lighting_adaptive_light:
+    expose: false
+  switch.adaptive_lighting_sleep_mode_adaptive_light:
+    expose: false
+  switch.washing_machine_socket:
+    expose: false
+  switch.adguard_home_filtering:
+    expose: false
+  switch.adguard_home_parental_control:
+    expose: false
+  switch.adguard_home_protection:
+    expose: false
+  switch.adguard_home_query_log:
+    expose: false
+  switch.adguard_home_safe_browsing:
+    expose: false
+  switch.adguard_home_safe_search:
+    expose: false

@@ -1,0 +1,5 @@
+device_tracker:
+  - name: "Aviad Phone WIFI"
+    state_topic: 'location/aviad_wifi'
+    source_type: router
+    unique_id: "mqtt_person_aviad_wifi"

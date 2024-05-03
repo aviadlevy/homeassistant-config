@@ -1,0 +1,5 @@
+exclude:
+  entities:
+    - binary_sensor.kitchen_occupancy_sensor_motion
+    - binary_sensor.office_occupancy_sensor_motion
+    - binary_sensor.living_room_occupancy_sensor_motion

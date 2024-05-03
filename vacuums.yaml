@@ -1,0 +1,5 @@
+- platform: xiaomi_vacuum
+  host: !secret dreame_d9_host
+  token: !secret dreame_d9_token
+  name: Dreame Robot Vacuum D9 Manual
+  entity_id: vacuum_dreame
