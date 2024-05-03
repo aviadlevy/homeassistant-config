@@ -116,6 +116,9 @@ echo_say_the_time:
   sequence:
   - service: notify.alexa_media_echo_bedroom
     data:
-      message: Hi! The time is {{ now().strftime('%H %M') }}
+      message: "{% if now().strftime('%H')|int < 12 and now().strftime('%H')|int >
+        4 %}\n   Good morning!\n{% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int
+        < 16 %}\n   Good afternoon!\n{% else %}\n   Good evening!\n{% endif %} The
+        current time is {{ now().strftime('%H %M') }}."
   mode: single
   icon: mdi:clock-time-eight
