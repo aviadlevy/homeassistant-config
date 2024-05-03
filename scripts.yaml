@@ -111,3 +111,11 @@ clean_carpet:
       entity_id: vacuum.dreame_robot_vacuum_d9
   mode: single
   icon: mdi:rug
+echo_say_the_time:
+  alias: Echo say the time
+  sequence:
+  - service: notify.alexa_media_echo_bedroom
+    data:
+      message: Hi! The time is {{ now().strftime('%H %M') }}
+  mode: single
+  icon: mdi:clock-time-eight

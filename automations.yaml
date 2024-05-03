@@ -2897,8 +2897,8 @@
         payload: not_home
         retain: true
   mode: single
-- id: shabbat_1_5
-  alias: Shabbat 1.5 - Kriat Shma when early shabbat
+- id: shabbat_1_1
+  alias: Shabbat 1.1 - Kriat Shma when early shabbat
   description: ''
   trigger:
   - platform: template
@@ -2934,4 +2934,27 @@
   action:
   - event: sync_sonarr_delete
     event_data: {}
+  mode: single
+- id: 'shabbat_1_2'
+  alias: Shabbat 1.2 - wake up
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.shabbat_morning_lights_on
+  condition:
+  - condition: state
+    entity_id: input_select.mode
+    state: Shabbat
+  action:
+  - repeat:
+      count: 3
+      sequence:
+      - service: script.echo_say_the_time
+        metadata: {}
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 15
+          seconds: 0
+          milliseconds: 0
   mode: single
