@@ -21,3 +21,4 @@ SERVICE_ACCOUNT.json
 
 # nothing important here for now
 sensors.yaml
+http.yaml

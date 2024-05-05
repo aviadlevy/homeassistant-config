@@ -26,9 +26,9 @@
         entity_id: switch.smart_plug_kids_bedroom
     else:
     - if:
-      - condition: template
-        value_template: '{{ is_state(''calendar.school_vacation'' ,''on'') and ''חינוך
-          רשמי'' in state_attr(''calendar.school_vacation'', ''message'') }}'
+      - condition: state
+        entity_id: binary_sensor.is_school_vacation
+        state: 'on'
       then:
       - delay:
           hours: 0
@@ -267,6 +267,11 @@
     to: Shabbat
   condition: []
   action:
+  - service: notify.mobile_app_aviad_phone
+    data:
+      message: רוטינות שבת החלה
+      data:
+        tag: shabbat-mode
   - service: scene.turn_on
     data: {}
     target:
@@ -377,6 +382,14 @@
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
+  - service: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.4
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+      - media_player.sonos_living_room
 - id: mode_changer_away
   alias: Mode changer - Away
   description: Turns Away Mode ON/OFF depending on existing mode
@@ -450,6 +463,19 @@
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
       - media_player.sonos_kids_bedroom
+  - service: notify.mobile_app_aviad_phone
+    data:
+      message: clear_notification
+      data:
+        tag: shabbat-mode
+  - service: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.25
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+      - media_player.sonos_kitchen
   mode: single
 - id: lights_out
   alias: Lights out
@@ -721,12 +747,24 @@
     conditions:
     - condition: template
       value_template: '{{trigger.from_state.state == ''unknown''}}'
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: input_select.mode
-      state: Away
   action:
+  - variables:
+      message: '{% set totalDays = states(''sensor.jewish_calendar_day_of_the_omer'')
+        | int %}{% set weeks = totalDays // 7 %}{% set daysInWeek = totalDays %7 %}{%
+        set lsb = totalDays % 10 %}{% set msb = totalDays - lsb %}הַיּוֹם{% if totalDays
+        == 1 %} יוֹם אֶחָד{% elif totalDays > 1 and totalDays < 7 %}{{ totalDays }}
+        יָמִים{% else %} {% if totalDays < 21 or lsb == 0 %}{{ totalDays }}{% else
+        %}{{ lsb }} וְ- {{ msb }}{% endif %} {% if totalDays < 11 %} יָמִים {% else
+        %} יוֹם {% endif %} {% if weeks < 2 %}שֶׁהֵם שָׁבוּעַ אֶחָד {% else %}שֶׁהֵם
+        {{ weeks }} שָׁבוּעוֹת {% endif %} {% if daysInWeek == 1 %}וְיוֹם אֶחָד {%
+        elif daysInWeek > 1 %}וְ- {{ daysInWeek }} יָמִים {% endif %}{% endif %}לָעומֶר
+
+        '
+  - service: notify.home_assistant_telegram
+    data:
+      message: '{{ message }}
+
+        '
   - if:
     - condition: not
       conditions:
@@ -746,19 +784,12 @@
       announce: true
       language: iw
       tts_platform: google_translate
-      message: "\n{% set totalDays = states('sensor.jewish_calendar_day_of_the_omer')
-        | int %}\n{% set weeks = totalDays // 7 %}\n{% set daysInWeek = totalDays
-        %7 %}\n{% set lsb = totalDays % 10 %}\n{% set msb = totalDays - lsb %}\nהַיּוֹם\n{%
-        if totalDays == 1 %}\n  יוֹם אֶחָד\n{% elif totalDays > 1 and  totalDays <
-        7 %}\n  {{ totalDays }} יָמִים\n{% else %}\n  {% if totalDays < 21  or lsb
-        == 0 %}\n\t{{ totalDays }}\n  {% else %}\n\t{{ lsb }} וְ- {{ msb }}\n  {%
-        endif %}\n  {% if totalDays < 11 %}\n  יָמִים\n  {% else %}\n  יוֹם\n  {%
-        endif %}\n  {% if weeks < 2 %}\n\tשֶׁהֵם שָׁבוּעַ אֶחָד \n  {% else %} \n\tשֶׁהֵם
-        {{ weeks }} שָׁבוּעוֹת\n  {% endif %}\n  {% if daysInWeek == 1 %}\n\tוְיוֹם
-        אֶחָד\n  {% elif daysInWeek > 1 %}\n\tוְ- {{ daysInWeek }} יָמִים\n  {% endif
-        %}\n{% endif %}\n לָעומֶר\n"
+      message: '{{ message }}
+
+        '
     target:
       entity_id: media_player.sonos_living_room
+    enabled: true
   mode: single
 - id: alert_washing_machine_finished
   alias: Alert when washing machine finished
@@ -1343,24 +1374,6 @@
         data: {}
         target:
           entity_id: light.parents_bathroom_lights
-- id: alert_kitchen_espresense_down
-  alias: Alert when kitchen Espresense is down
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.espresense_kitchen
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    from: 'on'
-  condition: []
-  action:
-  - service: notify.mobile_app_aviad_phone
-    data:
-      message: Kitchen espresense is down
-  mode: single
 - id: alert_download_finished
   alias: Alert when download is finished
   description: ''
@@ -1652,69 +1665,6 @@
         data:
           tag: cloudy-day-alert
   mode: single
-- id: alert_kitchen_occupancy_unavailable
-  alias: Alert when kitchen occupancy is unavailable
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.kitchen_occupancy_sensor_occupancy
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    to: unavailable
-  condition: []
-  action:
-  - service: switch.turn_on
-    data: {}
-    target:
-      entity_id: switch.kitchen_ble_proxy_restart
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - switch.kitchen_ble_proxy_restart
-      to: 'off'
-    timeout:
-      hours: 0
-      minutes: 10
-      seconds: 0
-      milliseconds: 0
-  - service: homeassistant.reload_config_entry
-    data: {}
-    target:
-      entity_id: binary_sensor.kitchen_occupancy_sensor_occupancy
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - binary_sensor.kitchen_occupancy_sensor_occupancy
-      from: unavailable
-    timeout:
-      hours: 0
-      minutes: 10
-      seconds: 0
-      milliseconds: 0
-  - if:
-    - condition: state
-      entity_id: binary_sensor.kitchen_occupancy_sensor_occupancy
-      state: unavailable
-    then:
-    - service: notify.mobile_app_aviad_phone
-      data:
-        title: Kitchen occupancy is down
-        message: ''
-    else:
-    - service: notify.mobile_app_aviad_phone
-      data:
-        title: Kitchen occupancy was down, but we recovered
-        message: Current state is {{states.binary_sensor.kitchen_occupancy_sensor_occupancy.state
-          }}
-  mode: single
 - id: backlight_tv_music
   alias: Backlight TV Music
   description: ''
@@ -1899,11 +1849,11 @@
       message: "\U0001F489"
     enabled: true
   - service: automation.turn_off
-    target:
-      entity_id: automation.onetime_automation
     data:
       stop_actions: true
     enabled: true
+    target:
+      entity_id: automation.one_time_automation_alert_when_nogs_is_home
   mode: single
 - id: dismiss_Alert_when_charging
   alias: Dismiss alert when charging
@@ -2111,13 +2061,11 @@
   - service: conversation.process
     metadata: {}
     data:
-      text: "{% set weather_entity = 'weather.ims_weather' %}  {%- if weather_entity
-        is defined %} {%- set forecast = state_attr(weather_entity, 'forecast')[0]
-        %} {%- set temperature_unit = state_attr(weather_entity, 'temperature_unit')
-        -%}  \nLocation: Petah Tikva, Israel \nTime: {{ as_timestamp(now()) | timestamp_custom(\"%H:%M
-        %d/%m/%y\") }}\nWeather:  {{ forecast.condition }} ({{ forecast.temperature}}{{temperature_unit
-        }}, {{ states('sensor.ims_precipitation_probability')}}% precipitation){%-
-        endif %}\nPersonal calendar events today: {%- if agenda['calendar.aviadlevy1_gmail_com'].events
+      text: "Location: Petah Tikva, Israel \nTime: {{ as_timestamp(now()) | timestamp_custom(\"%H:%M
+        %d/%m/%y\") }}\n{% set max_temp = state_attr('sensor.ims_forecast_today',
+        'maximum_temperature') %} Weather:  {{ state_attr('sensor.ims_forecast_today',
+        'weather').value }} (max of {{ max_temp.value}}{{max_temp.unit }}, {{ states('sensor.ims_precipitation_probability')}}%
+        precipitation)\nPersonal calendar events today: {%- if agenda['calendar.aviadlevy1_gmail_com'].events
         %}\n  {%- for event in agenda['calendar.aviadlevy1_gmail_com'].events %}\n
         \ - Summary: {{ event.summary }}\n    Start: {% if event.start is defined
         %}{{ as_timestamp(event.start) | timestamp_custom(\"%H:%M\") }}{% else %}All
@@ -2311,7 +2259,7 @@
       milliseconds: 0
   - service: chime_tts.say
     data:
-      message: אפשר לצאת מהממד
+      message: אפשר לצאת מהמה מד
       chime_path: classical
       cache: true
       announce: true
@@ -2320,6 +2268,7 @@
       end_chime_path: classical
       offset: 1000
       final_delay: 1000
+      volume_level: 0.4
     target:
       entity_id: media_player.sonos_living_room
   - delay:
@@ -2458,7 +2407,7 @@
         state: 'on'
       - condition: numeric_state
         entity_id: cover.switcher_runner
-        above: 15
+        above: 25
         attribute: current_position
       sequence:
       - service: cover.set_cover_position
@@ -2484,7 +2433,7 @@
       - condition: numeric_state
         entity_id: cover.switcher_runner
         attribute: current_position
-        below: 15
+        below: 25
       sequence:
       - service: cover.open_cover
         target:
@@ -2492,90 +2441,6 @@
           - cover.switcher_runner
         data: {}
     default: []
-  mode: single
-- id: alert_work_profile
-  alias: Alert work profile
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.aviad
-    zone: zone.work
-    event: enter
-    id: morning_office
-  - platform: time
-    at: 08:30:00
-    id: morning_home
-  - platform: time
-    at: '20:30:00'
-    id: 'off'
-  condition:
-  - condition: or
-    conditions:
-    - condition: and
-      conditions:
-      - condition: trigger
-        id:
-        - morning_home
-      - condition: state
-        entity_id: person.aviad
-        state: home
-    - condition: not
-      conditions:
-      - condition: trigger
-        id:
-        - morning_home
-  - condition: time
-    weekday:
-    - sun
-    - mon
-    - tue
-    - wed
-    - thu
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - morning_office
-        - morning_home
-      - condition: state
-        entity_id: binary_sensor.aviad_phone_work_profile
-        state: 'off'
-      sequence:
-      - service: notify.mobile_app_aviad_phone
-        data:
-          title: Work profile
-          message: is still off
-          data:
-            tag: work-profile
-    - conditions:
-      - condition: trigger
-        id:
-        - 'off'
-      - condition: state
-        entity_id: binary_sensor.aviad_phone_work_profile
-        state: 'on'
-      sequence:
-      - service: notify.mobile_app_aviad_phone
-        data:
-          title: Work profile
-          message: is still on
-          data:
-            tag: work-profile
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - binary_sensor.aviad_phone_work_profile
-    timeout:
-      hours: 2
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - service: notify.mobile_app_aviad_phone
-    data:
-      message: clear_notification
-      data:
-        tag: work-profile
   mode: single
 - id: alert_and_speak_day_agenda_test
   alias: Alert and speak day agenda - testing
@@ -2592,20 +2457,16 @@
     data: {}
     enabled: true
   - variables:
-      long: 'בוקר טוב תושבי פתח תקווה! היום נהנים משמיים חלקית ענניים עם טמפרטורה
-        נעימה של 16 מעלות. מזג אוויר מושלם לפעילות בחוץ!
+      long: 'בוקר טוב! התחזיקו בכובעים, היום בפתח תקווה צפוי להיות חלקית מעונן וחם
+        עם 25 מעלות. נזכרו להשתתף בפגישה החשובה עם אייל בשעה 10:30. יום נפלא לצאת
+        החוצה ולהנות מהחיים!
 
+        כדי לסיים את הוד החודש בסגנון, אל תשכחו שהיום הוא ''ד'' אייר''. נשארו רק כמה
+        ימים עד חג העצמאות, אז תחגגו את היום עם אופטימיות ושמחה. אולי היסטוריה גם
+        תעזור לכם לחיוך - האם ידעתם שביום זה, לפני הרבה שנים, נחתה חללית על הירח?
 
-        אין אירועים מיוחדים ביומן להיום, אז זו הזדמנות מצוינת ליהנות מרגעי שקט לפני
-        תחילת יום העבודה. האירוע הראשון שלכם היום בעבודה מתחיל ב-09:35.
-
-
-        רוצים לשמוע משהו מעניין? ביום כזה בהיסטוריה, ג''יימס ג''ויס פרסם את הרומן
-        המפורסם "יוליסס". יום מושלם לקרוא ספר טוב!
-
-
-        שיהיה לכם יום נעים ומלא בהפתעות טובות! שלא תשכחו להתלבש בהתאם למזג האוויר,
-        ותזכרו, כל יום הוא הזדמנות ללמידה ולהתפתחות. שיהיה לכם בוקר פלאי!
+        שיהיה לכם יום מקסים ומוצלח! תהנו מהזמן עם אייל ואל תשכחו לחגוג את יום העצמאות
+        הקרוב. מזכירה לכם שאני כאן תמיד לכל שאלה או עזרה. נשים קדימה!
 
         '
   - service: chime_tts.say
@@ -2619,7 +2480,7 @@
       tts_platform: google_translate
       language: iw
       chime_path: choir
-      join_players: true
+      announce: true
     target:
       entity_id:
       - media_player.sonos_kids_bedroom
@@ -2724,15 +2585,15 @@
   - service: automation.turn_on
     data: {}
     target:
-      entity_id: automation.office_detection
+      entity_id:
+      - automation.office_motion_detection
     enabled: true
   - service: automation.turn_off
-    target:
-      entity_id:
-      - automation.one_time_automation_office_motion
     data:
       stop_actions: true
     enabled: true
+    target:
+      entity_id: automation.one_time_automation_office_motion
   mode: single
 - id: alert_pending_updates
   alias: Alert when pending updates
@@ -2764,7 +2625,6 @@
       - update.hyperion_ng_update
       - update.israel_meteorological_service_sensor_update
       - update.kids_temperature_sensor_firmware
-      - update.kitchen_ble_proxy_firmware
       - update.kitchen_motion_sensor_firmware
       - update.kitchen_switch_firmware
       - update.living_room_door_large_firmware
@@ -2783,7 +2643,6 @@
       - update.qbittorrent_update
       - update.smart_plug_kids_bedroom_firmware
       - update.studio_code_server_update
-      - update.terminal_ssh_update
       - update.vacuum_card_update
       - update.vertical_stack_in_card_update
       - update.washing_machine_contact_sensor_firmware
@@ -2793,6 +2652,16 @@
       - update.balcony_bulb_firmware
       - update.closet_bulb_firmware
       - update.israel_electric_corporation_iec_update
+      - update.alexa_media_player_update
+      - update.apexcharts_card_update
+      - update.bazarr_update
+      - update.kitchen_ble_proxy_firmware
+      - update.prowlarr_update
+      - update.radarr_update
+      - update.raspberry_pi_gpio_update
+      - update.sonarr_update
+      - update.tailscale_update
+      - update.advanced_ssh_web_terminal_update
       mobile_app_device: 4214920656084e3e0376f9a6c7b2eb48
       reminder_hours: ''
       only_after: 08:00:00
@@ -2814,13 +2683,13 @@
           entity_id: light.closet_bulb
       on_action: []
 - id: echo_volume_routine
-  alias: Bedroom Echo volume routine
+  alias: Projector in bedroom routine
   description: ''
   trigger:
   - platform: state
     entity_id:
     - remote.mibox3
-    id: high
+    id: 'on'
     for:
       hours: 0
       minutes: 0
@@ -2829,7 +2698,7 @@
   - platform: state
     entity_id:
     - remote.mibox3
-    id: low
+    id: 'off'
     for:
       hours: 0
       minutes: 0
@@ -2842,7 +2711,7 @@
   - if:
     - condition: trigger
       id:
-      - low
+      - 'off'
     then:
     - service: media_player.volume_set
       metadata: {}
@@ -2862,6 +2731,11 @@
         entity_id: media_player.mibox
       data:
         volume_level: 0.6
+    - service: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.bed_led_strip
   mode: single
 - id: home_wifi_routine
   alias: Home WIFI connection routine
@@ -2872,16 +2746,23 @@
     - sensor.aviad_phone_wifi_connection
   condition: []
   action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 15
+      milliseconds: 0
   - service: notify.mobile_app_aviad_phone
     data:
       message: command_broadcast_intent
       data:
         intent_package_name: com.tailscale.ipn
-        intent_action: com.tailscale.ipn.{{ "DIS" if "Levy" in trigger.to_state.state  else
+        intent_action: com.tailscale.ipn.{{ "DIS" if "Levy" in states('sensor.aviad_phone_wifi_connection')  else
           ""}}CONNECT_VPN
+    enabled: false
   - if:
     - condition: template
-      value_template: '{{ "Levy" in trigger.to_state.state }}'
+      value_template: '{{ "Levy" in states(''sensor.aviad_phone_wifi_connection'')
+        }}'
     then:
     - service: mqtt.publish
       metadata: {}
@@ -2896,7 +2777,7 @@
         topic: location/aviad_wifi
         payload: not_home
         retain: true
-  mode: single
+  mode: restart
 - id: shabbat_1_1
   alias: Shabbat 1.1 - Kriat Shma when early shabbat
   description: ''
@@ -2935,7 +2816,7 @@
   - event: sync_sonarr_delete
     event_data: {}
   mode: single
-- id: 'shabbat_1_2'
+- id: shabbat_1_2
   alias: Shabbat 1.2 - wake up
   description: ''
   trigger:
@@ -2957,4 +2838,33 @@
           minutes: 15
           seconds: 0
           milliseconds: 0
+  mode: single
+- id: '1716104348579'
+  alias: Kids in school routine
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:30:00
+    id: 'off'
+  - platform: time
+    at: '15:30:00'
+    id: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.is_school_vacation
+    state: 'off'
+  - condition: state
+    entity_id: input_select.mode
+    state: Home
+  - condition: time
+    weekday:
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
+  action:
+  - service: light.turn_{{ trigger.id }}
+    target:
+      entity_id: light.bathroom_bulb
   mode: single
