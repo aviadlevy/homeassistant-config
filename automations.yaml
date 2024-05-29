@@ -2655,7 +2655,6 @@
       - update.alexa_media_player_update
       - update.apexcharts_card_update
       - update.bazarr_update
-      - update.kitchen_ble_proxy_firmware
       - update.prowlarr_update
       - update.radarr_update
       - update.raspberry_pi_gpio_update
