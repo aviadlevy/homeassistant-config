@@ -6,6 +6,10 @@
 !.gitignore
 !*.md
 !esphome
+# Specific script
+!sonarr_mgmt
+!sonarr_mgmt/*
+
 
 # Ignore folders.
 .storage
@@ -18,6 +22,7 @@ secrets.yaml
 known_devices.yaml
 # This is not yaml, but still sensitive so let's try to be safe
 SERVICE_ACCOUNT.json
+sonarr_mgmt/secrets.py
 
 # nothing important here for now
 sensors.yaml
