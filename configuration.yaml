@@ -24,10 +24,6 @@ duckdns:
   domain: aviadlevy
   access_token: !secret duckdns_token
 
-jewish_calendar:
-  candle_lighting_minutes_before_sunset: 105
-  language: hebrew
-
 logger:
   default: warning
 
