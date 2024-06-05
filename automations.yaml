@@ -1143,10 +1143,11 @@
         id: shabbat_2_night_house
       sequence:
       - scene: scene.shabbat_2_goodnight
-      - service: cover.close_cover
-        data: {}
+      - service: cover.set_cover_position
         target:
           entity_id: cover.switcher_runner
+        data:
+          position: 5
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_house
@@ -1956,11 +1957,12 @@
     entity_id: input_select.mode
     state: Home
   action:
-  - service: cover.close_cover
+  - service: cover.set_cover_position
     target:
       entity_id:
       - cover.switcher_runner
-    data: {}
+    data:
+      position: 5
   mode: single
 - id: alert_sonos_roam_low_battery
   alias: Alert on low Sonos Roam battery
