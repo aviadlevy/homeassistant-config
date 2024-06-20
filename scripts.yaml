@@ -103,9 +103,9 @@ clean_carpet:
     data:
       repeats: 2
       zone:
-      - - -510
+      - - -907
         - 676
-        - 1423
+        - 1198
         - 1796
     target:
       entity_id: vacuum.dreame_robot_vacuum_d9

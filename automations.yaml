@@ -442,7 +442,6 @@
       message: שבת יצאה. שבוע טוב לכולם
       chime_path: choir
       cache: true
-      announce: true
       tts_platform: google_translate
       language: iw
       join_players: true
@@ -494,10 +493,22 @@
     entity_id: person.noga
     state: not_home
   action:
+  - variables:
+      current_bedroon_dan_state: '{{ states(''fan.bedroom_fan'') }}'
   - service: scene.turn_on
     target:
       entity_id: scene.lights_out
     metadata: {}
+  - if:
+    - condition: state
+      entity_id: binary_sensor.bedroon_occupancy_sensor_occupancy
+      state: 'on'
+    then:
+    - service: fan.turn_{{ current_bedroon_dan_state }}
+      metadata: {}
+      data: {}
+      target:
+        entity_id: fan.bedroom_fan
   mode: single
 - id: kitchen_md
   alias: Kitchen motion detection
@@ -528,7 +539,7 @@
   - wait_for_trigger:
     - platform: state
       entity_id:
-      - binary_sensor.kitchen_occupancy_sensor_occupancy
+      - binary_sensor.espresense_kitchen_occupancy
       from: 'on'
       to: 'off'
       for:
@@ -545,13 +556,16 @@
     - condition: state
       entity_id: input_select.mode
       state: Shabbat
+    - condition: state
+      entity_id: person.noga
+      state: home
   - condition: time
     before: '18:00:00'
   - service: light.turn_off
     data: {}
     target:
       entity_id: light.kitchen_switch
-  mode: single
+  mode: restart
 - id: bed_md
   alias: Bed motion detection
   description: ''
@@ -697,7 +711,6 @@
       message: זמן הדלקת נרות
       chime_path: choir
       cache: true
-      announce: true
       tts_platform: google_translate
       language: iw
       join_players: true
@@ -765,18 +778,6 @@
       message: '{{ message }}
 
         '
-  - if:
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: media_player.sonos_living_room
-        state: playing
-    then:
-    - service: media_player.volume_set
-      data:
-        volume_level: 0.4
-      target:
-        entity_id: media_player.sonos_living_room
   - service: chime_tts.say
     data:
       chime_path: toast
@@ -1147,7 +1148,7 @@
         target:
           entity_id: cover.switcher_runner
         data:
-          position: 5
+          position: 9
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_house
@@ -1221,31 +1222,31 @@
     - input_select.mode
     to: Shabbat
     id: living_room_fan
-    enabled: true
-  - at: '20:00:00'
+    enabled: false
+  - at: '20:50:00'
     platform: time
     id: all_fans
     enabled: true
   - at: '23:00:00'
     platform: time
     id: bedroom_fans
-    enabled: false
+    enabled: true
   - at: 07:00:00
     platform: time
     id: all_fans
-    enabled: false
-  - at: 09:30:00
+    enabled: true
+  - at: 09:45:00
     platform: time
     enabled: true
-    id: living_room_fan
+    id: no_fans
   - at: '12:30:00'
     platform: time
     id: all_fans
-    enabled: true
+    enabled: false
   - at: '17:50:00'
     platform: time
     id: living_room_fan
-    enabled: true
+    enabled: false
   condition:
   - condition: state
     entity_id: input_select.mode
@@ -1962,7 +1963,7 @@
       entity_id:
       - cover.switcher_runner
     data:
-      position: 5
+      position: 0
   mode: single
 - id: alert_sonos_roam_low_battery
   alias: Alert on low Sonos Roam battery
@@ -2046,6 +2047,18 @@
     entity_id: input_select.mode
     state: Home
   action:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.is_school_vacation
+      state: 'on'
+    then:
+    - delay:
+        hours: 0
+        minutes: '{{ states(''input_number.morning_vacation_delay'') | int }}
+
+          '
+        seconds: 0
+        milliseconds: 0
   - service: script.set_up_sonos_group
     data: {}
     enabled: true
@@ -2075,17 +2088,18 @@
         endif %} \nHebrew date to mention in message: '{{states('sensor.jewish_calendar_date').split()[:2]
         | join(\" \") }}'\nGenerate text for a notification that will be be heard
         in our house speakers. no emojis.\n- You are a helpful personal agent that
-        generates text for the user \n- Your answers are helpful, friendly, insightful
-        and kids friendly.\n- Your messages help the user prepare for their day, for
-        example:\n  - Making note of unusual weather for the location and time of
-        year (but not mundane details like \"0% chance of precipitation\")\n  - Anything
-        that may be special or unique, such as celebrating a birthday\n- Your message
-        should not be longer than 600 tokens! this is a hard requirement!\n- Your
-        priority so everything can be in that message is:\n  - Weather forcast\n  -
-        Upcoming calendar events\n  - adding a joke or an insightful things happened
-        today in history (optional)\n- Your answer should contain 3 paragraphs, and
-        1 short goodbye paragraph. paragraphs are seperated with double breaking line.
-        paragraph should not contains more than 200 characters  "
+        generates text for the user. your answer should always be in Hebrew language\n-
+        Your answers are helpful, friendly, insightful and kids friendly.\n- Your
+        messages help the user prepare for their day, for example:\n  - Making note
+        of unusual weather for the location and time of year (but not mundane details
+        like \"0% chance of precipitation\")\n  - Anything that may be special or
+        unique, such as celebrating a birthday\n- Your message should not be longer
+        than 600 tokens! this is a hard requirement!\n- Your priority so everything
+        can be in that message is:\n  - Weather forcast\n  - Upcoming calendar events\n
+        \ - adding a joke or an insightful things happened today in history (optional)\n-
+        Your answer should contain 3 paragraphs, and 1 short goodbye paragraph. paragraphs
+        are seperated with double breaking line. paragraph should not contains more
+        than 200 characters  "
       agent_id: f4c52c64de732da6128ad2ba3385071d
     response_variable: agent
   - service: notify.home_assistant_telegram
@@ -2109,16 +2123,6 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - media_player.sonos_living_room
-      to: paused
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 30
-      milliseconds: 0
   - service: chime_tts.say
     data:
       message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[1]
@@ -2133,16 +2137,6 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - media_player.sonos_living_room
-      to: paused
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 30
-      milliseconds: 0
   - service: chime_tts.say
     data:
       message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[2]
@@ -2157,16 +2151,6 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - media_player.sonos_living_room
-      to: paused
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 30
-      milliseconds: 0
   - service: chime_tts.say
     data:
       message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[3:]
@@ -2181,16 +2165,6 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - media_player.sonos_living_room
-      to: paused
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 30
-      milliseconds: 0
   - service: media_player.unjoin
     data: {}
     target:
@@ -2459,18 +2433,12 @@
     data: {}
     enabled: true
   - variables:
-      long: 'בוקר טוב! התחזיקו בכובעים, היום בפתח תקווה צפוי להיות חלקית מעונן וחם
-        עם 25 מעלות. נזכרו להשתתף בפגישה החשובה עם אייל בשעה 10:30. יום נפלא לצאת
-        החוצה ולהנות מהחיים!
-
-        כדי לסיים את הוד החודש בסגנון, אל תשכחו שהיום הוא ''ד'' אייר''. נשארו רק כמה
-        ימים עד חג העצמאות, אז תחגגו את היום עם אופטימיות ושמחה. אולי היסטוריה גם
-        תעזור לכם לחיוך - האם ידעתם שביום זה, לפני הרבה שנים, נחתה חללית על הירח?
-
-        שיהיה לכם יום מקסים ומוצלח! תהנו מהזמן עם אייל ואל תשכחו לחגוג את יום העצמאות
-        הקרוב. מזכירה לכם שאני כאן תמיד לכל שאלה או עזרה. נשים קדימה!
-
-        '
+      long: "טוב! היום בפתח תקווה מזג האוויר יהיה בהיר וחם, עם טמפרטורת\n     מקסימום
+        של 34 מעלות צלזיוס. שימו לב לשתות הרבה מים כדי להישאר רעננים.\n\n\n     בהמשך
+        היום, יש לכם אירוע חשוב בלוח הזמנים: תרופות לאילה בערב בשעה\n     18:00. אל
+        תשכחו לסמן זאת בלוח הזמנים שלכם.\n\n\n     היום הוא כ\"ט אייר. האם ידעתם שב-6
+        ביוני 1944, החל מבצע 'D-Day' הפולש\n     לאירופה במלחמת העולם השנייה? תמיד
+        מעניין לדעת קצת היסטוריה על היום\n     הזה.\n     \n"
   - service: chime_tts.say
     data:
       offset: 500
@@ -2482,7 +2450,6 @@
       tts_platform: google_translate
       language: iw
       chime_path: choir
-      announce: true
     target:
       entity_id:
       - media_player.sonos_kids_bedroom
@@ -2498,6 +2465,7 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
+    enabled: false
   - service: chime_tts.say
     data:
       message: '{{ long.split("\n\n")[1] }}
@@ -2521,6 +2489,7 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
+    enabled: false
   - service: chime_tts.say
     data:
       message: '{{ long.split("\n\n")[2] }}
@@ -2544,6 +2513,7 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
+    enabled: false
   - service: chime_tts.say
     data:
       message: '{{ long.split("\n\n")[3:] }}
@@ -2567,6 +2537,7 @@
       minutes: 0
       seconds: 30
       milliseconds: 0
+    enabled: false
   - service: media_player.unjoin
     data: {}
     target:
@@ -2612,7 +2583,6 @@
       - update.bubble_card_update
       - update.card_mod_update
       - update.chime_tts_update
-      - update.city_mind_water_meter_update
       - update.door_sensor_firmware
       - update.dreame_vacuum_update
       - update.duck_dns_update
@@ -2663,6 +2633,10 @@
       - update.sonarr_update
       - update.tailscale_update
       - update.advanced_ssh_web_terminal_update
+      - update.hass_agent_update
+      - update.bedroom_occupancy_firmware
+      - update.music_assistant_update
+      - update.city_mind_water_meter_update
       mobile_app_device: 4214920656084e3e0376f9a6c7b2eb48
       reminder_hours: ''
       only_after: 08:00:00
@@ -2798,7 +2772,6 @@
     data:
       chime_path: choir
       cache: true
-      announce: true
       tts_platform: google_translate
       language: iw
       join_players: true
@@ -2868,4 +2841,20 @@
   - service: light.turn_{{ trigger.id }}
     target:
       entity_id: light.bathroom_bulb
+  mode: single
+- id: '1718041496620'
+  alias: Home assistant starts routine
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: localtuya.reload
+    data: {}
   mode: single
