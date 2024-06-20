@@ -1,3 +1,4 @@
 exclude:
   entity_globs:
     - binary_sensor.*_occupancy_sensor_motion
+    - binary_sensor.espresense_*_motion
