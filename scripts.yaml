@@ -1,39 +1,39 @@
 set_up_sonos_group:
   alias: Set up sonos group casting
   sequence:
-  - service: media_player.volume_mute
-    data:
+  - data:
       is_volume_muted: false
     target:
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
       - media_player.sonos_kids_bedroom
-  - service: media_player.join
-    data:
+    action: media_player.volume_mute
+  - data:
       group_members:
       - media_player.sonos_living_room
       - media_player.sonos_kids_bedroom
     target:
       entity_id:
       - media_player.sonos_kitchen
-  - service: media_player.volume_set
-    data:
+    action: media_player.join
+  - data:
       volume_level: 0.35
     target:
       entity_id:
       - media_player.sonos_living_room
-  - service: media_player.volume_set
-    data:
+    action: media_player.volume_set
+  - data:
       volume_level: 0.5
     target:
       entity_id: media_player.sonos_kids_bedroom
-  - service: media_player.volume_set
-    data:
-      volume_level: 0.3
+    action: media_player.volume_set
+  - data:
+      volume_level: 0.5
     target:
       entity_id:
       - media_player.sonos_kitchen
+    action: media_player.volume_set
   - delay:
       hours: 0
       minutes: 0
