@@ -1,4 +1,4 @@
-- id: 'lights_out'
+- id: lights_out
   name: Lights Out
   entities:
     light.bathroom_switch:
@@ -88,7 +88,7 @@
       entity_only: true
     fan.living_room_fan:
       entity_only: true
-- id: 'shabbat_sunset'
+- id: shabbat_sunset
   name: Shabbat 0 Sunset
   entities:
     light.bathroom_bulb:
@@ -159,7 +159,7 @@
       entity_only: true
     light.bathroom_switch:
       entity_only: true
-- id: 'shabbat_evening'
+- id: shabbat_evening
   name: Shabbat 1 Evening
   entities:
     light.living_room_door_small:
@@ -223,7 +223,7 @@
       entity_only: true
     light.kids_light:
       entity_only: true
-- id: 'shabbat_night'
+- id: shabbat_night
   name: Shabbat 2 Goodnight
   entities:
     light.living_room_lights:
@@ -312,7 +312,7 @@
       entity_only: true
     cover.switcher_runner:
       entity_only: true
-- id: 'shabbat_morning_cloud'
+- id: shabbat_morning_cloud
   name: Shabbat 3 Morning Cloudy
   entities:
     light.kitchen_switch:
@@ -356,7 +356,7 @@
       entity_only: true
     light.kids_light:
       entity_only: true
-- id: 'shabbat_morning'
+- id: shabbat_morning
   name: Shabbat 3 Morning
   entities:
     light.kitchen_switch:
@@ -405,7 +405,7 @@
       entity_only: true
     light.bed_led_strip:
       entity_only: true
-- id: 'fans_out'
+- id: fans_out
   name: Fans out
   entities:
     fan.bedroom_fan:
@@ -430,7 +430,7 @@
     fan.office_fan:
       entity_only: true
   icon: mdi:fan-off
-- id: 'shabbat_bedroom_fan'
+- id: shabbat_bedroom_fan
   name: Shabbat Bedroom Fans On
   entities:
     fan.bedroom_fan:
@@ -450,7 +450,7 @@
       entity_only: true
     fan.living_room_fan:
       entity_only: true
-- id: 'shabbat_fans_on'
+- id: shabbat_fans_on
   name: Shabbat Fans On
   entities:
     fan.bedroom_fan:
@@ -470,7 +470,7 @@
     fan.living_room_fan:
       entity_only: true
   icon: mdi:fan
-- id: 'shabbat_living_room_fan'
+- id: shabbat_living_room_fan
   name: Shabbat Living Room Fans On
   entities:
     fan.bedroom_fan:
@@ -493,3 +493,42 @@
     fan.living_room_fan:
       entity_only: true
   icon: mdi:fan
+- id: '1728798978848'
+  name: Movie
+  entities:
+    cover.switcher_runner:
+      current_position: 10
+      device_class: shutter
+      friendly_name: Switcher Runner
+      supported_features: 15
+      state: open
+    light.living_room_lights:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      entity_id:
+      - light.living_room_door_large
+      - light.living_room_door_small
+      - light.living_room_window_large
+      - light.living_room_window_small
+      icon: mdi:lightbulb-group
+      friendly_name: Living Room Lights
+      supported_features: 8
+      state: 'off'
+    light.kitchen_switch:
+      supported_color_modes:
+      - onoff
+      color_mode:
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Kitchen Switch תאורה
+      supported_features: 8
+      state: 'off'
+  icon: mdi:movie
+  metadata:
+    cover.switcher_runner:
+      entity_only: true
+    light.living_room_lights:
+      entity_only: true
+    light.kitchen_switch:
+      entity_only: true
