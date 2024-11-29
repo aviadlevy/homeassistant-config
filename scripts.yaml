@@ -29,7 +29,7 @@ set_up_sonos_group:
       entity_id: media_player.sonos_kids_bedroom
     action: media_player.volume_set
   - data:
-      volume_level: 0.5
+      volume_level: 0.4
     target:
       entity_id:
       - media_player.sonos_kitchen
@@ -122,3 +122,27 @@ echo_say_the_time:
         current time is {{ now().strftime('%H %M') }}."
   mode: single
   icon: mdi:clock-time-eight
+get_random_song_from_playlist:
+  alias: Play random song from playlist
+  sequence:
+  - action: spotifyplus.get_playlist_items
+    data:
+      entity_id: media_player.spotifyplus_aviad
+      playlist_id: '{{ playlist_id }}'
+      fields: items.track.uri
+    response_variable: result
+  - data:
+      media_content_type: track
+      media_content_id: '    {% set randomsong = result[''result''][''items''] | random
+        %} {{     randomsong.track.uri }}'
+    target:
+      entity_id: media_player.sonos_living_room
+    action: media_player.play_media
+  description: ''
+  fields:
+    playlist_id:
+      selector:
+        text:
+      name: Playlist ID
+      required: true
+  icon: mdi:play

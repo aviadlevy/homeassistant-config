@@ -58,8 +58,13 @@
     fan.living_room_fan:
       friendly_name: Living Room Fan
       state: 'off'
+    light.wled_kitchen:
+      friendly_name: WLED Kitchen
+      state: 'off'
   icon: mdi:lightbulb-group-off-outline
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     fan.bedroom_fan:
       entity_only: true
     fan.kids_fan:
@@ -130,7 +135,12 @@
     light.living_room_window_small:
       friendly_name: Living Room Window Small
       state: 'on'
+    light.wled_kitchen:
+      friendly_name: WLED Kitchen
+      state: 'off'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     light.bathroom_bulb:
       entity_only: true
     light.kitchen_switch:
@@ -196,7 +206,12 @@
     light.kids_light:
       friendly_name: Kids Light
       state: 'off'
+    light.wled_kitchen:
+      friendly_name: WLED Kitchen
+      state: 'off'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     light.living_room_door_small:
       entity_only: true
     light.living_room_door_large:
@@ -227,9 +242,6 @@
   name: Shabbat 2 Goodnight
   entities:
     light.living_room_lights:
-      supported_color_modes:
-      - onoff
-      color_mode:
       entity_id:
       - light.living_room_door_large
       - light.living_room_door_small
@@ -237,16 +249,9 @@
       - light.living_room_window_small
       icon: mdi:lightbulb-group
       friendly_name: Living Room Lights
-      supported_features: 8
       state: 'off'
     light.kitchen_switch:
-      supported_color_modes:
-      - onoff
-      color_mode:
-      off_with_transition: false
-      off_brightness:
       friendly_name: Kitchen Switch תאורה
-      supported_features: 8
       state: 'off'
     light.bed_led_strip:
       icon: mdi:led-strip-variant
@@ -287,7 +292,25 @@
     switch.smart_plug_kids_bedroom:
       friendly_name: Smart Plug Kids Bedroom
       state: 'on'
+    light.wled_kitchen:
+      effect: Solid
+      color_mode: rgb
+      brightness: 128
+      hs_color:
+      - 48
+      - 1.961
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      friendly_name: WLED Kitchen
+      state: 'on'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     light.living_room_lights:
       entity_only: true
     light.kitchen_switch:
@@ -339,7 +362,12 @@
     light.kids_light:
       friendly_name: Kids Light
       state: 'on'
+    light.wled_kitchen:
+      friendly_name: WLED Kitchen
+      state: 'off'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     light.kitchen_switch:
       entity_only: true
     light.closet_bulb:
@@ -390,14 +418,17 @@
       icon: mdi:led-strip-variant
       friendly_name: Bed Led Strip
       state: 'off'
+    light.wled_kitchen:
+      friendly_name: WLED Kitchen
+      state: 'off'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     light.kitchen_switch:
       entity_only: true
     light.living_room_lights:
       entity_only: true
     light.bathroom_bulb:
-      entity_only: true
-    light.bathroom_switch:
       entity_only: true
     light.parent_bathroom_bulb:
       entity_only: true
@@ -495,17 +526,14 @@
   icon: mdi:fan
 - id: '1728798978848'
   name: Movie
+  icon: mdi:movie
   entities:
     cover.switcher_runner:
       current_position: 10
       device_class: shutter
       friendly_name: Switcher Runner
-      supported_features: 15
       state: open
     light.living_room_lights:
-      supported_color_modes:
-      - onoff
-      color_mode:
       entity_id:
       - light.living_room_door_large
       - light.living_room_door_small
@@ -513,19 +541,29 @@
       - light.living_room_window_small
       icon: mdi:lightbulb-group
       friendly_name: Living Room Lights
-      supported_features: 8
       state: 'off'
     light.kitchen_switch:
-      supported_color_modes:
-      - onoff
-      color_mode:
-      off_with_transition: false
-      off_brightness:
       friendly_name: Kitchen Switch תאורה
-      supported_features: 8
       state: 'off'
-  icon: mdi:movie
+    light.wled_kitchen:
+      effect: Solid
+      color_mode: rgb
+      brightness: 128
+      hs_color:
+      - 48
+      - 1.961
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      friendly_name: WLED Kitchen
+      state: 'on'
   metadata:
+    light.wled_kitchen:
+      entity_only: true
     cover.switcher_runner:
       entity_only: true
     light.living_room_lights:

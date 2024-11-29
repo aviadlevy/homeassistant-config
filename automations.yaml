@@ -13,6 +13,11 @@
       timedelta(minutes = (states(''input_number.morning_vacation_delay'')| int))
       }}
 
+      {% elif states(''input_select.mode'') == ''Shabbat'' %}
+
+      {{ now() >= today_at(states(''input_datetime.shabbat_morning_lights_on'')) -
+      timedelta(minutes = 30) }}
+
       {% else %}
 
       {{ now() >= today_at(states(''input_datetime.morning_routine_baseline'')) }}
@@ -35,6 +40,18 @@
       target:
         entity_id: switch.smart_plug_kids_bedroom
       action: switch.turn_on
+    - action: number.set_value
+      metadata: {}
+      data:
+        value: '10'
+      target:
+        entity_id: number.dreame_robot_vacuum_d9_volume
+    - action: select.select_option
+      metadata: {}
+      data:
+        option: quiet
+      target:
+        entity_id: select.dreame_robot_vacuum_d9_suction_level
     else:
     - data: {}
       target:
@@ -69,14 +86,25 @@
         data:
           position: 19
         action: cover.set_cover_position
+    - action: number.set_value
+      metadata: {}
+      data:
+        value: '50'
+      target:
+        entity_id: number.dreame_robot_vacuum_d9_volume
+    - action: select.select_option
+      metadata: {}
+      data:
+        option: standard
+      target:
+        entity_id: select.dreame_robot_vacuum_d9_suction_level
   mode: single
 - id: backlight_tv
   alias: Backlight TV
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - media_player.mitv_2
+  triggers:
+  - entity_id:
+    - media_player.mitv
     to: 'on'
     id: turn_on
     for:
@@ -84,9 +112,9 @@
       minutes: 0
       seconds: 5
     enabled: true
-  - platform: state
-    entity_id:
-    - media_player.mitv_2
+    trigger: state
+  - entity_id:
+    - media_player.mitv
     id: turn_off
     from: 'on'
     for:
@@ -94,8 +122,9 @@
       minutes: 0
       seconds: 5
     enabled: true
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - delay:
       hours: 0
       minutes: 0
@@ -114,87 +143,63 @@
       entity_id: light.wled_backlight_tv
       state: 'off'
     - wait_for_trigger:
-      - platform: state
-        entity_id:
+      - entity_id:
         - media_player.mitv_adb
         to: 'on'
+        trigger: state
       timeout:
         hours: 0
         minutes: 0
         seconds: 10
         milliseconds: 0
-    - service: input_boolean.turn_off
-      data: {}
+    - data: {}
       target:
         entity_id: input_boolean.hyperion_activation
-    - service: light.turn_on
-      data:
+      action: input_boolean.turn_off
+    - data:
         color_temp: 330
         brightness_pct: 50
         effect: Solid
         transition: 10
       target:
         entity_id: light.wled_backlight_tv
+      action: light.turn_on
     else:
-    - service: input_boolean.turn_off
-      data: {}
+    - data: {}
       target:
         entity_id: input_boolean.hyperion_activation
+      action: input_boolean.turn_off
     - delay:
         hours: 0
         minutes: 0
         seconds: 7
         milliseconds: 0
-    - service: light.turn_off
-      data:
+    - data:
         transition: 20
       target:
         entity_id: light.wled_backlight_tv
+      action: light.turn_off
   mode: queued
   max: 10
-- id: alert_sleep_notification
-  alias: Alert sleep notification
-  description: ''
-  trigger:
-  - platform: time
-    at: '22:30:00'
-  condition:
-  - condition: state
-    entity_id: media_player.mitv_adb
-    state: playing
-  action:
-  - repeat:
-      until:
-      - condition: or
-        conditions:
-        - condition: state
-          entity_id: media_player.mitv_adb
-          state: 'off'
-        - condition: state
-          entity_id: media_player.mitv_adb
-          state: unavailable
-      sequence:
-      - service: notify.mi_tv
-        data:
-          message: לישון?
-      - delay:
-          hours: 0
-          minutes: 15
-          seconds: 0
-          milliseconds: 0
-  mode: single
 - id: mode_changer_shabbat
   alias: Mode changer - Shabbat
   description: Turns Shabbos Mode ON/OFF depending on existing mode
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.jewish_calendar_issur_melacha_in_effect
-  condition: []
-  action:
+  triggers:
+  - trigger: time
+    at: sensor.jewish_calendar_upcoming_havdalah
+    id: 'off'
+  - trigger: time
+    at:
+      entity_id: sensor.jewish_calendar_upcoming_candle_lighting
+      offset: -01:00:00
+    id: 'on'
+  conditions: []
+  actions:
   - choose:
     - conditions:
-      - condition: template
-        value_template: '{{trigger.to_state.state == ''on''}}'
+      - condition: trigger
+        id:
+        - 'on'
       - condition: state
         entity_id: input_select.mode
         state: Home
@@ -212,14 +217,15 @@
           entity_id: input_select.mode
           state: Home
         then:
-        - service: input_select.select_option
-          target:
+        - target:
             entity_id: input_select.mode
           data:
             option: Shabbat
+          action: input_select.select_option
     - conditions:
-      - condition: template
-        value_template: '{{trigger.to_state.state == ''on''}}'
+      - condition: trigger
+        id:
+        - 'on'
       - condition: state
         entity_id: input_select.mode
         state: Home
@@ -227,34 +233,35 @@
         state: 'on'
         entity_id: binary_sensor.is_early_shabbat
       sequence:
-      - service: input_select.select_option
-        target:
+      - target:
           entity_id: input_select.mode
         data:
           option: Shabbat
+        action: input_select.select_option
     - conditions:
-      - condition: template
-        value_template: '{{trigger.to_state.state == ''off''}}'
+      - condition: trigger
+        id:
+        - 'off'
       - condition: state
         entity_id: input_select.mode
         state: Shabbat
       sequence:
-      - service: input_select.select_option
-        target:
+      - target:
           entity_id: input_select.mode
         data:
           option: Home
-      - service: input_boolean.turn_off
-        data: {}
+        action: input_select.select_option
+      - data: {}
         target:
           entity_id:
           - input_boolean.guests
           - input_boolean.guests_shabbat_dinner
-      - service: input_boolean.turn_off
-        data: {}
+        action: input_boolean.turn_off
+      - data: {}
         target:
           entity_id: input_boolean.delay_shabbat
         enabled: true
+        action: input_boolean.turn_off
     default: []
   mode: single
 - id: shabbat_0
@@ -271,10 +278,12 @@
       data:
         tag: shabbat-mode
     action: notify.mobile_app_aviad_phone
+    enabled: true
   - metadata: {}
     data:
       addon: d5369777_music_assistant
     action: hassio.addon_stop
+    enabled: true
   - data: {}
     target:
       entity_id: scene.shabbat_0_sunset
@@ -347,18 +356,10 @@
       minutes: 0
       seconds: 5
       milliseconds: 0
-  - data:
-      shuffle: true
-    target:
-      entity_id:
-      - media_player.sonos_living_room
-    action: media_player.shuffle_set
-  - data:
-      media_content_type: playlist
-      media_content_id: https://open.spotify.com/playlist/07c13wipxpcwEl7eMRJRjk?si=n9VqYEgVS-GOBmbloM3eiw&dd=1
-    target:
-      entity_id: media_player.sonos_living_room
-    action: media_player.play_media
+  - action: script.get_random_song_from_playlist
+    metadata: {}
+    data:
+      playlist_id: 07c13wipxpcwEl7eMRJRjk
   - wait_for_trigger:
     - entity_id:
       - media_player.sonos_living_room
@@ -367,25 +368,8 @@
   - wait_for_trigger:
     - entity_id:
       - media_player.sonos_living_room
-      attribute: media_title
       trigger: state
-  - data: {}
-    target:
-      entity_id: media_player.sonos_living_room
-    action: media_player.media_stop
-  - data:
-      shuffle: false
-    target:
-      entity_id:
-      - media_player.sonos_living_room
-      - media_player.sonos_kitchen
-    action: media_player.shuffle_set
-  - data: {}
-    target:
-      entity_id:
-      - media_player.sonos_living_room
-      - media_player.sonos_kitchen
-    action: media_player.clear_playlist
+      from: playing
   - metadata: {}
     data:
       volume_level: 0.4
@@ -545,6 +529,12 @@
     after: 07:00:00
     enabled: true
     before: '18:00:00'
+    weekday:
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
   actions:
   - data: {}
     target:
@@ -613,10 +603,10 @@
     - condition: or
       conditions:
       - condition: state
-        entity_id: media_player.mibox
+        entity_id: remote.mibox3
         state: unavailable
       - condition: state
-        entity_id: media_player.mibox
+        entity_id: remote.mibox3
         state: 'off'
   actions:
   - data: {}
@@ -670,10 +660,13 @@
       below: 10
       attribute: current_position
   actions:
-  - data: {}
+  - data:
+      kelvin: 5390
+      effect: solid
     target:
       entity_id:
       - light.entrance_bulb
+      - light.wled_kitchen
     action: light.turn_on
   - if:
     - condition: time
@@ -691,12 +684,12 @@
   - wait_for_trigger:
     - entity_id:
       - binary_sensor.door_sensor
+      trigger: state
       to: 'off'
       for:
         hours: 0
         minutes: 0
         seconds: 5
-      trigger: state
     timeout:
       hours: 0
       minutes: 2
@@ -709,7 +702,9 @@
       milliseconds: 0
   - data: {}
     target:
-      entity_id: light.entrance_bulb
+      entity_id:
+      - light.entrance_bulb
+      - light.wled_kitchen
     action: light.turn_off
   mode: restart
 - id: shabbat_1
@@ -819,82 +814,36 @@
     enabled: true
   mode: single
 - id: alert_washing_machine_finished
-  alias: Alert when washing machine finished
+  alias: Fire event when washing machine finished
   description: ''
-  use_blueprint:
-    path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
-    input:
-      power_sensor: sensor.washing_machine_socket_power
-      finishing_hysteresis: 4
-      actions:
-      - if:
-        - condition: state
-          entity_id: binary_sensor.washing_machine_contact_sensor
-          state: 'off'
-        then:
-        - event: washing_machine_finished
-          event_data: {}
-        - service: notify.mobile_app_noga_phone
-          data:
-            message: מכונת הכביסה סיימה
-        - repeat:
-            until:
-            - condition: or
-              conditions:
-              - condition: state
-                entity_id: binary_sensor.washing_machine_contact_sensor
-                state: 'on'
-              - condition: state
-                entity_id: input_boolean.washing_machine_tag_scanned
-                state: 'on'
-            sequence:
-            - if:
-              - condition: state
-                entity_id: media_player.mitv_adb
-                state: playing
-              then:
-              - service: notify.mi_tv
-                data:
-                  message: מכונת הכביסה סיימה
-              - service: chime_tts.say
-                target:
-                  entity_id: media_player.sonos_kitchen
-                data:
-                  offset: 500
-                  announce: true
-                  language: iw
-                  message: מכונת הכביסה סיימה
-                  tts_platform: google_translate
-                  chime_path: chord
-                  cache: true
-                enabled: true
-              else:
-              - service: chime_tts.say
-                target:
-                  entity_id:
-                  - media_player.sonos_kitchen
-                  - media_player.sonos_living_room
-                data:
-                  offset: 500
-                  announce: true
-                  language: iw
-                  message: מכונת הכביסה סיימה
-                  tts_platform: google_translate
-                  chime_path: chord
-                  join_players: true
-                  cache: true
-                  unjoin_players: true
-                enabled: true
-            - delay:
-                hours: 0
-                minutes: 10
-                seconds: 0
-                milliseconds: 0
-      pre_actions: []
-      starting_threshold: 5
-      finishing_threshold: 3
-  trace:
-    stored_traces: 10
+  triggers:
+  - entity_id: sensor.washing_machine_socket_power
+    for:
+      minutes: 5
+    above: 5
+    trigger: numeric_state
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.washing_machine_socket_power
+    above: 5
+  actions:
+  - wait_for_trigger:
+    - entity_id: sensor.washing_machine_socket_power
+      below: 3
+      for:
+        minutes: 4
+      trigger: numeric_state
+  - if:
+    - condition: state
+      entity_id: binary_sensor.washing_machine_contact_sensor
+      state: 'off'
+    then:
+    - event: washing_machine_finished
+      event_data: {}
+  mode: single
+  max_exceeded: silent
 - id: alert_phone_low_battery_aviad
   alias: Alert when phone low battery - Aviad
   description: ''
@@ -1015,59 +964,117 @@
       entity_id: light.parents_bathroom_lights
   mode: single
 - id: lights_washing_machine_finished
-  alias: Light routine when washing machine finished
+  alias: When washing machine finished
   description: ''
-  trigger:
-  - platform: event
-    event_type: washing_machine_finished
-  condition: []
-  action:
-  - service: light.turn_on
-    data:
+  triggers:
+  - event_type: washing_machine_finished
+    trigger: event
+  conditions: []
+  actions:
+  - data:
+      message: מכונת הכביסה סיימה
+    action: notify.mobile_app_noga_phone
+  - data:
       rgb_color:
       - 17
       - 0
       - 255
     target:
       entity_id: light.balcony_bulb
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - binary_sensor.washing_machine_contact_sensor
-      to: 'on'
-    - platform: tag
-      tag_id: 93d413b2-e019-43c7-a394-ad8db3bc8f34
-    timeout:
-      hours: 1
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - service: light.turn_on
-    data:
-      color_temp: 153
-      brightness_pct: 100
-    target:
-      entity_id: light.balcony_bulb
-  - if:
-    - condition: state
-      entity_id: sun.sun
-      state: above_horizon
-    then:
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 5
-        milliseconds: 0
-    else:
-    - delay:
-        hours: 0
-        minutes: 30
-        seconds: 0
-        milliseconds: 0
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.balcony_bulb
+    action: light.turn_on
+  - parallel:
+    - repeat:
+        until:
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: binary_sensor.washing_machine_contact_sensor
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.washing_machine_tag_scanned
+            state: 'on'
+        sequence:
+        - if:
+          - condition: state
+            entity_id: media_player.mitv_adb
+            state: playing
+          then:
+          - data:
+              message: מכונת הכביסה סיימה
+            action: notify.mi_tv
+          - target:
+              entity_id: media_player.sonos_kitchen
+            data:
+              offset: 500
+              announce: true
+              language: iw
+              message: מכונת הכביסה סיימה
+              tts_platform: google_translate
+              chime_path: chord
+              cache: true
+            enabled: true
+            action: chime_tts.say
+          else:
+          - target:
+              entity_id:
+              - media_player.sonos_kitchen
+              - media_player.sonos_living_room
+            data:
+              offset: 500
+              announce: true
+              language: iw
+              message: מכונת הכביסה סיימה
+              tts_platform: google_translate
+              chime_path: chord
+              join_players: true
+              cache: true
+              unjoin_players: true
+            enabled: true
+            action: chime_tts.say
+        - delay:
+            hours: 0
+            minutes: 10
+            seconds: 0
+            milliseconds: 0
+    - sequence:
+      - wait_for_trigger:
+        - entity_id:
+          - binary_sensor.washing_machine_contact_sensor
+          to: 'on'
+          trigger: state
+        - tag_id: 93d413b2-e019-43c7-a394-ad8db3bc8f34
+          trigger: tag
+        timeout:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+      - data:
+          color_temp: 153
+          brightness_pct: 100
+        target:
+          entity_id: light.balcony_bulb
+        action: light.turn_on
+      - if:
+        - condition: state
+          entity_id: sun.sun
+          state: above_horizon
+        then:
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 5
+            milliseconds: 0
+        else:
+        - delay:
+            hours: 0
+            minutes: 30
+            seconds: 0
+            milliseconds: 0
+      - data: {}
+        target:
+          entity_id: light.balcony_bulb
+        action: light.turn_off
   mode: single
 - id: shabbat_guests
   alias: Guests for Shabbat
@@ -1087,36 +1094,36 @@
 - id: shabbat_2
   alias: Shabbat 2 - lights scenes
   description: ''
-  trigger:
-  - platform: sun
-    event: sunset
+  triggers:
+  - event: sunset
     offset: '1:00:00'
     id: shabbat_1_evening_house
-  - platform: time
-    id: shabbat_2_night_house
+    trigger: sun
+  - id: shabbat_2_night_house
     at: input_datetime.shabbat_lights_out
+    trigger: time
   - at: input_datetime.shabbat_morning_lights_on
-    platform: time
     id: shabbat_3_morning_house
     enabled: true
+    trigger: time
   - at: '10:30:00'
-    platform: time
     id: shabbat_3_morning_meal
     enabled: true
+    trigger: time
   - at: input_datetime.shabbat_noon_lights_out
-    platform: time
     id: shabbat_4_day_house
     enabled: true
+    trigger: time
   - event: sunset
     offset: -01:30:00
-    platform: sun
     id: shabbat_5_sunset_house
     enabled: true
-  condition:
+    trigger: sun
+  conditions:
   - condition: state
     entity_id: input_select.mode
     state: Shabbat
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -1125,15 +1132,6 @@
         after: 00:00:00
         before: input_datetime.shabbat_lights_out
       sequence:
-      - if:
-        - condition: time
-          before: input_datetime.shabbat_night_baseline_routine
-          after: 00:00:00
-        then:
-        - wait_for_trigger:
-          - platform: time
-            at: input_datetime.shabbat_night_baseline_routine
-        else: []
       - if:
         - condition: state
           entity_id: binary_sensor.is_early_shabbat
@@ -1144,6 +1142,15 @@
             minutes: 0
             seconds: 0
             milliseconds: 0
+        else: []
+      - if:
+        - condition: time
+          before: input_datetime.shabbat_night_baseline_routine
+          after: 00:00:00
+        then:
+        - wait_for_trigger:
+          - at: input_datetime.shabbat_night_baseline_routine
+            trigger: time
         else: []
       - if:
         - condition: state
@@ -1162,20 +1169,20 @@
           before: input_datetime.shabbat_lights_out
         then:
         - scene: scene.shabbat_1_evening
-        - service: light.turn_on
-          data: {}
+        - data: {}
           target:
             entity_id: light.bed_led_strip
+          action: light.turn_on
     - conditions:
       - condition: trigger
         id: shabbat_2_night_house
       sequence:
       - scene: scene.shabbat_2_goodnight
-      - service: cover.set_cover_position
-        target:
+      - target:
           entity_id: cover.switcher_runner
         data:
           position: 9
+        action: cover.set_cover_position
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_house
@@ -1190,15 +1197,15 @@
             entity_id: sensor.pirateweather_cloud_coverage
             above: 60
         then:
-        - service: scene.turn_on
-          target:
+        - target:
             entity_id: scene.shabbat_3_morning_cloudy
           metadata: {}
+          action: scene.turn_on
         else:
-        - service: scene.turn_on
-          target:
+        - target:
             entity_id: scene.shabbat_3_morning
           metadata: {}
+          action: scene.turn_on
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_meal
@@ -1213,10 +1220,10 @@
             entity_id: sensor.pirateweather_cloud_coverage
             above: 60
         then:
-        - service: scene.turn_on
-          target:
+        - target:
             entity_id: scene.shabbat_3_morning_cloudy
           metadata: {}
+          action: scene.turn_on
     - conditions:
       - condition: trigger
         id: shabbat_4_day_house
@@ -1635,10 +1642,10 @@
 - id: alert_cloudy_day
   alias: Alert when cluody day
   description: ''
-  trigger:
-  - platform: time
-    at: '17:30:00'
-  condition:
+  triggers:
+  - at: '16:30:00'
+    trigger: time
+  conditions:
   - condition: not
     conditions:
     - condition: state
@@ -1650,9 +1657,8 @@
   - condition: state
     entity_id: switch.switcher_home
     state: 'off'
-  action:
-  - service: notify.aviad_and_noga_mobiles
-    data:
+  actions:
+  - data:
       message: We had {{states('sensor.average_cloudiness_8h')}} % average cloud coverage
         for the last 8h
       data:
@@ -1663,86 +1669,96 @@
           title: Dismiss
         tag: cloudy-day-alert
       title: Cloudy day
+    action: notify.aviad_and_noga_mobiles
   - wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
+    - event_type: mobile_app_notification_action
       event_data:
         tag: cloudy-day-alert
+      trigger: event
     timeout:
-      hours: 0
-      minutes: 20
+      hours: 1
+      minutes: 30
       seconds: 0
       milliseconds: 0
-  - choose:
-    - conditions: '{{ wait.trigger and wait.trigger.event.data.action == ''turn_on_boiler_notification''
+  - if:
+    - condition: template
+      value_template: '{{ wait.trigger and wait.trigger.event.data.action == ''turn_on_boiler_notification''
         }}'
-      sequence:
-      - service: switcher_kis.turn_on_with_timer
-        data:
-          timer_minutes: 30
-        target:
-          entity_id: switch.switcher_home
-      - service: notify.aviad_and_noga_mobiles
-        data:
-          message: clear_notification
-          data:
-            tag: cloudy-day-alert
-    default:
-    - service: notify.aviad_and_noga_mobiles
+    then:
+    - data:
+        timer_minutes: 30
+      target:
+        entity_id: switch.switcher_home
+      action: switcher_kis.turn_on_with_timer
+  - data:
+      message: clear_notification
       data:
-        message: clear_notification
-        data:
-          tag: cloudy-day-alert
+        tag: cloudy-day-alert
+    action: notify.aviad_and_noga_mobiles
   mode: single
 - id: backlight_tv_music
   alias: Backlight TV Music
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - media_player.sonos_living_room
     for:
       hours: 0
       minutes: 0
       seconds: 5
     to: playing
-  condition:
+    trigger: state
+  conditions:
   - condition: not
     conditions:
     - condition: state
       entity_id: media_player.sonos_living_room
       attribute: source
       state: TV
-  action:
-  - service: light.turn_on
-    data:
+  actions:
+  - data:
       effect: '{{ state_attr("light.wled_backlight_tv", "effect_list") | random }}'
     target:
       entity_id: light.wled_backlight_tv
-  - service: select.select_option
+    action: light.turn_on
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
     target:
+      entity_id:
+      - switch.wled_backlight_tv_sync_send
+      - switch.wled_kitchen_sync_receive
+  - target:
       entity_id: select.wled_backlight_tv_color_palette
     data:
       option: '{{ state_attr(''select.wled_backlight_tv_color_palette'', ''options'')
         | random }}'
+    action: select.select_option
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - media_player.sonos_living_room
       from: playing
       for:
         hours: 0
         minutes: 0
         seconds: 7
+      trigger: state
     timeout:
       hours: 2
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - service: light.turn_off
-    data: {}
+  - data: {}
     target:
       entity_id: light.wled_backlight_tv
+    action: light.turn_off
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.wled_backlight_tv_sync_send
+      - switch.wled_kitchen_sync_receive
   mode: restart
 - id: hyperion_activation
   alias: Hyperion Activation
@@ -2049,11 +2065,6 @@
       seconds: 15
     trigger: state
   - entity_id:
-    - media_player.mitv
-    attribute: media_title
-    trigger: state
-    enabled: false
-  - entity_id:
     - media_player.mitv_2
     trigger: state
     attribute: media_title
@@ -2061,27 +2072,10 @@
       hours: 0
       minutes: 0
       seconds: 2
+    id: title
   conditions: []
   actions:
   - choose:
-    - conditions:
-      - condition: or
-        conditions:
-        - condition: template
-          value_template: '{{ state_attr(''media_player.mitv'', ''media_title'') ==
-            None }}'
-          enabled: false
-        - condition: trigger
-          id:
-          - turn_on
-        - condition: template
-          value_template: '{{ state_attr(''media_player.mitv_2'', ''media_title'')
-            == None }}'
-      sequence:
-      - target:
-          entity_id: input_boolean.hyperion_activation
-        data: {}
-        action: input_boolean.turn_on
     - conditions:
       - condition: or
         conditions:
@@ -2097,14 +2091,31 @@
     - conditions:
       - condition: or
         conditions:
-        - condition: template
-          value_template: '{{ state_attr(''media_player.mitv'', ''media_title'') !=
-            None and ''2160'' in state_attr(''media_player.mitv'', ''media_title'').lower()
-            }}
+        - condition: trigger
+          id:
+          - turn_on
+        - condition: and
+          conditions:
+          - condition: trigger
+            id:
+            - title
+          - condition: template
+            value_template: '{{ state_attr(''media_player.mitv_2'', ''media_title'')
+              == None }}
 
 
-            '
-          enabled: false
+              '
+      sequence:
+      - target:
+          entity_id: input_boolean.hyperion_activation
+        data: {}
+        action: input_boolean.turn_on
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - title
         - condition: template
           value_template: '{{ state_attr(''media_player.mitv_2'', ''media_title'')
             != None and ''2160'' in state_attr(''media_player.mitv_2'', ''media_title'').lower()
@@ -2137,13 +2148,13 @@
       %}
 
       {{ now() >= today_at(states(''input_datetime.morning_routine_baseline''))  +
-      timedelta(minutes = 30) + timedelta(minutes = (states(''input_number.morning_vacation_delay'')|
+      timedelta(minutes = 15) + timedelta(minutes = (states(''input_number.morning_vacation_delay'')|
       int)) }}
 
       {% else %}
 
       {{ now() >= today_at(states(''input_datetime.morning_routine_baseline''))  +
-      timedelta(minutes = 30) }}
+      timedelta(minutes = 15) }}
 
       {% endif %}'
     trigger: template
@@ -2182,22 +2193,22 @@
         %}\n  {%- for event in agenda['calendar.family'].events %}\n  - Summary: {{
         event.summary }}\n    Start: {% if event.start is defined %}{{ as_timestamp(event.start)
         | timestamp_custom(\"%H:%M\") }}{% else %}All Day{% endif %}\n  {%- endfor
-        %}\n{%- else %}\n  - No upcoming events.\n{%- endif %} \nHebrew date to mention
-        in message: '{{states('sensor.jewish_calendar_date').split()[:2] | join(\"
-        \") }}'\nGenerate text for a notification that will be be heard in our house
-        speakers. no emojis.\n- You are a helpful personal agent that generates text
-        for the user. your answer should always be in Hebrew language\n- Your answers
-        are helpful, friendly, insightful and kids friendly.\n- Your messages help
-        the user prepare for their day, for example:\n  - Making note of unusual weather
-        for the location and time of year (but not mundane details like \"0% chance
-        of precipitation\")\n  - Anything that may be special or unique, such as celebrating
-        a birthday\n- Your message should not be longer than 600 tokens! this is a
-        hard requirement!\n- Your priority so everything can be in that message is:\n
-        \ - Weather forcast\n  - Upcoming calendar events\n  - adding a joke or an
-        insightful things happened today in history (optional, but a must when you
-        are not passing the limit)\n- Your answer should contain 3 paragraphs, and
-        1 short goodbye paragraph. paragraphs are seperated with double breaking line.
-        paragraph should not contains more than 200 characters  "
+        %}\n{%- else %}\n  - No upcoming events.\n{%- endif %} \nIs it school day?
+        ->  {{ states('binary_sensor.is_school_vacation') == 'off' }}\nHebrew date
+        to mention in message: '{{states('sensor.jewish_calendar_date').split()[:2]
+        | join(\" \") }}'\nGenerate text for a notification that will be be heard
+        in our house speakers. no emojis.\n- You are a helpful personal agent that
+        generates text for the user. your answer should always be in Hebrew language\n-
+        Your answers are helpful, friendly, insightful and kids friendly.\n- Your
+        messages help the user prepare for their day, for example:\n  - Making note
+        of unusual weather for the location and time of year (but not mundane details
+        like \"0% chance of precipitation\")\n  - Anything that may be special or
+        unique, such as celebrating a birthday\n- Your message should not be longer
+        than 600 tokens! this is a hard requirement!\n- Your priority so everything
+        can be in that message is:\n  - Weather forcast, but ignore if temperature
+        is 0. it means something went wrong\n  - Upcoming calendar events\n  - adding
+        a joke or an insightful things happened today in history\n- Your answer should
+        contain 3 paragraphs, and 1 short goodbye paragraph. "
       agent_id: conversation.gemini_pro
     response_variable: agent
     action: conversation.process
@@ -2206,71 +2217,22 @@
     action: notify.home_assistant_telegram
   - data:
       offset: 500
-      final_delay: 0
-      tts_playback_speed: 100
-      message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[0]
-        }}
+      message: '{{ agent.response.speech.plain.speech }}
 
         '
+      final_delay: 0
       tts_platform: google_translate
       language: iw
       chime_path: choir
       join_players: true
+      unjoin_players: true
     target:
       entity_id:
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
     action: chime_tts.say
-  - data:
-      message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[1]
-        }}
-
-        '
-      tts_platform: google_translate
-      language: iw
-      join_players: true
-    target:
-      entity_id:
-      - media_player.sonos_kids_bedroom
-      - media_player.sonos_kitchen
-      - media_player.sonos_living_room
-    action: chime_tts.say
-  - data:
-      message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[2]
-        }}
-
-        '
-      tts_platform: google_translate
-      language: iw
-      join_players: true
-    target:
-      entity_id:
-      - media_player.sonos_kids_bedroom
-      - media_player.sonos_kitchen
-      - media_player.sonos_living_room
-    action: chime_tts.say
-  - data:
-      message: '{% set long = agent.response.speech.plain.speech %} {{ long.split("\n\n")[3:]
-        }}
-
-        '
-      tts_platform: google_translate
-      language: iw
-      join_players: true
-    target:
-      entity_id:
-      - media_player.sonos_kids_bedroom
-      - media_player.sonos_kitchen
-      - media_player.sonos_living_room
-    action: chime_tts.say
-  - data: {}
-    target:
-      entity_id:
-      - media_player.sonos_living_room
-      - media_player.sonos_kitchen
     enabled: true
-    action: media_player.unjoin
   mode: single
 - id: oref_alert_time_to_shelter_countdown
   alias: Pikud HaOref routine
@@ -2416,35 +2378,36 @@
 - id: who_pick_kids
   alias: Who's picking the kids
   description: ''
-  trigger:
-  - platform: time
-    at: 08:00:00
-  condition: []
-  action:
+  triggers:
+  - at: 08:00:00
+    trigger: time
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: time
         weekday:
-        - mon
+        - tue
+        - wed
       sequence:
-      - service: input_select.select_option
-        metadata: {}
+      - metadata: {}
         data:
           option: Noga
         target:
           entity_id: input_select.who_picking_the_kids
+        action: input_select.select_option
     - conditions:
       - condition: time
         weekday:
-        - tue
         - sun
+        - thu
       sequence:
-      - service: input_select.select_option
-        metadata: {}
+      - metadata: {}
         data:
           option: Aviad
         target:
           entity_id: input_select.who_picking_the_kids
+        action: input_select.select_option
   mode: single
 - id: shabbat_4
   alias: Shabbat 4 - rain routine
@@ -2521,29 +2484,36 @@
 - id: alert_and_speak_day_agenda_test
   alias: Alert and speak day agenda - testing
   description: ''
-  trigger:
-  - platform: time
-    at: 07:00:00
-  condition:
+  triggers:
+  - at: 07:00:00
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_select.mode
     state: Home
-  action:
-  - service: script.set_up_sonos_group
-    data: {}
+  actions:
+  - data: {}
     enabled: true
+    action: script.set_up_sonos_group
   - variables:
-      long: "טוב! היום בפתח תקווה מזג האוויר יהיה בהיר וחם, עם טמפרטורת\n     מקסימום
+      long: "בוקר! היום בפתח תקווה מזג האוויר יהיה בהיר וחם, עם טמפרטורת\n     מקסימום
         של 34 מעלות צלזיוס. שימו לב לשתות הרבה מים כדי להישאר רעננים.\n\n\n     בהמשך
         היום, יש לכם אירוע חשוב בלוח הזמנים: תרופות לאילה בערב בשעה\n     18:00. אל
         תשכחו לסמן זאת בלוח הזמנים שלכם.\n\n\n     היום הוא כ\"ט אייר. האם ידעתם שב-6
         ביוני 1944, החל מבצע 'D-Day' הפולש\n     לאירופה במלחמת העולם השנייה? תמיד
         מעניין לדעת קצת היסטוריה על היום\n     הזה.\n     \n"
-  - service: chime_tts.say
+  - action: tts.google_say
+    metadata: {}
     data:
-      offset: 500
+      language: iw
+      entity_id: media_player.sonoses
+      message: '{{ long.split("\n\n")[0] }}
+
+        '
+    enabled: false
+  - data:
+      offset: 0
       final_delay: 0
-      tts_playback_speed: 100
       message: '{{ long.split("\n\n")[0] }}
 
         '
@@ -2555,19 +2525,20 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
+    action: chime_tts.say
+    enabled: true
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - media_player.sonos_living_room
       to: paused
+      trigger: state
     timeout:
       hours: 0
       minutes: 0
       seconds: 30
       milliseconds: 0
     enabled: false
-  - service: chime_tts.say
-    data:
+  - data:
       message: '{{ long.split("\n\n")[1] }}
 
         '
@@ -2579,19 +2550,20 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
+    action: chime_tts.say
+    enabled: false
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - media_player.sonos_living_room
       to: paused
+      trigger: state
     timeout:
       hours: 0
       minutes: 0
       seconds: 30
       milliseconds: 0
     enabled: false
-  - service: chime_tts.say
-    data:
+  - data:
       message: '{{ long.split("\n\n")[2] }}
 
         '
@@ -2603,19 +2575,20 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
+    action: chime_tts.say
+    enabled: false
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - media_player.sonos_living_room
       to: paused
+      trigger: state
     timeout:
       hours: 0
       minutes: 0
       seconds: 30
       milliseconds: 0
     enabled: false
-  - service: chime_tts.say
-    data:
+  - data:
       message: '{{ long.split("\n\n")[3:] }}
 
         '
@@ -2627,24 +2600,26 @@
       - media_player.sonos_kids_bedroom
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
+    action: chime_tts.say
+    enabled: false
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - media_player.sonos_living_room
       to: paused
+      trigger: state
     timeout:
       hours: 0
       minutes: 0
       seconds: 30
       milliseconds: 0
     enabled: false
-  - service: media_player.unjoin
-    data: {}
+  - data: {}
     target:
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
     enabled: true
+    action: media_player.unjoin
   mode: single
 - id: one_time_automation_office_md
   alias: One time automation - office motion
@@ -2758,9 +2733,8 @@
 - id: echo_volume_routine
   alias: Projector in bedroom routine
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - remote.mibox3
     id: 'on'
     for:
@@ -2768,8 +2742,8 @@
       minutes: 0
       seconds: 0
     to: 'on'
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - remote.mibox3
     id: 'off'
     for:
@@ -2779,36 +2753,37 @@
     enabled: true
     to: 'off'
     from: 'on'
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - if:
     - condition: trigger
       id:
       - 'off'
     then:
-    - service: media_player.volume_set
-      metadata: {}
+    - metadata: {}
       data:
         volume_level: 0.25
       target:
         entity_id: media_player.echo_bedroom
+      action: media_player.volume_set
     else:
-    - service: media_player.volume_set
-      metadata: {}
+    - metadata: {}
       data:
         volume_level: 1
       target:
         entity_id: media_player.echo_bedroom
-    - service: media_player.volume_set
-      target:
+      action: media_player.volume_set
+    - target:
         entity_id: media_player.mibox
       data:
         volume_level: 0.6
-    - service: light.turn_off
-      metadata: {}
+      action: media_player.volume_set
+    - metadata: {}
       data: {}
       target:
         entity_id: light.bed_led_strip
+      action: light.turn_off
   mode: single
 - id: home_wifi_routine
   alias: Home WIFI connection routine
@@ -2887,37 +2862,37 @@
 - id: shabbat_1_2
   alias: Shabbat 1.2 - wake up
   description: ''
-  trigger:
-  - platform: time
-    at: input_datetime.shabbat_morning_lights_on
-  condition:
+  triggers:
+  - at: input_datetime.shabbat_morning_lights_on
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_select.mode
     state: Shabbat
-  action:
+  actions:
   - repeat:
-      count: 3
+      count: 2
       sequence:
-      - service: script.echo_say_the_time
-        metadata: {}
+      - metadata: {}
         data: {}
+        action: script.echo_say_the_time
       - delay:
           hours: 0
-          minutes: 15
+          minutes: 30
           seconds: 0
           milliseconds: 0
   mode: single
 - id: '1716104348579'
   alias: Kids in school routine
   description: ''
-  trigger:
-  - platform: time
-    at: 08:30:00
+  triggers:
+  - at: 08:30:00
     id: 'off'
-  - platform: time
-    at: '15:30:00'
+    trigger: time
+  - at: '15:30:00'
     id: 'on'
-  condition:
+    trigger: time
+  conditions:
   - condition: state
     entity_id: binary_sensor.is_school_vacation
     state: 'off'
@@ -2931,7 +2906,7 @@
     - tue
     - wed
     - thu
-  action:
+  actions:
   - target:
       entity_id: light.bathroom_bulb
     action: light.turn_{{ trigger.id }}
@@ -2942,6 +2917,9 @@
     - condition: state
       entity_id: binary_sensor.is_raining
       state: 'off'
+    - condition: state
+      entity_id: binary_sensor.is_dst
+      state: 'on'
     then:
     - metadata: {}
       data:
@@ -2984,18 +2962,9 @@
     data: {}
   mode: single
 - id: '1720729188404'
-  alias: Alert when something disconnected
+  alias: Alert when Samba disconnected
   description: ''
   triggers:
-  - entity_id:
-    - binary_sensor.mini_pc
-    to: 'off'
-    trigger: state
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    id: minipc
   - trigger: state
     entity_id:
     - sensor.system_monitor_disk_free_media_smb
@@ -3005,78 +2974,32 @@
       minutes: 5
       seconds: 0
     id: smb
-  conditions: []
+  - trigger: state
+    entity_id:
+    - person.aviad
+    to: home
+    id: smb
+  conditions:
+  - condition: state
+    entity_id: sensor.system_monitor_disk_free_media_smb
+    state: unavailable
   actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - minipc
-      sequence:
-      - metadata: {}
-        data:
-          message: Mini PC disconnected
-          data:
-            actions:
-            - action: finger_bot_toggle
-              title: Turn on
-            tag: mini-pc-disconnected
-        action: notify.mobile_app_aviad_phone
-      - wait_for_trigger:
-        - event_type: mobile_app_notification_action
-          event_data:
-            tag: mini-pc-disconnected
-          trigger: event
-        - entity_id:
-          - binary_sensor.mini_pc
-          to: 'on'
-          trigger: state
-        timeout:
-          hours: 1
-          minutes: 0
-          seconds: 0
-          milliseconds: 0
-      - if:
-        - condition: template
-          value_template: '{{ wait.trigger and wait.trigger.event and wait.trigger.event.data
-            and wait.trigger.event.data.action == ''finger_bot_toggle'' }}'
-        then:
-        - target:
-            entity_id: switch.mini_pc_fingerbot_switch
-          data: {}
-          action: switch.toggle
-        - data:
-            message: clear_notification
-            data:
-              tag: mini-pc-disconnected
-          action: notify.mobile_app_aviad_phone
-        else:
-        - data:
-            message: clear_notification
-            data:
-              tag: mini-pc-disconnected
-          action: notify.mobile_app_aviad_phone
-    - conditions:
-      - condition: trigger
-        id:
-        - smb
-      sequence:
-      - metadata: {}
-        data:
-          message: Samba disk disconnected
-          data:
-            tag: smb-disconnected
-        action: notify.mobile_app_aviad_phone
-      - wait_for_trigger:
-        - entity_id:
-          - sensor.system_monitor_disk_free_media_smb
-          trigger: state
-          from: unavailable
-      - data:
-          message: clear_notification
-          data:
-            tag: smb-disconnected
-        action: notify.mobile_app_aviad_phone
+  - metadata: {}
+    data:
+      message: Samba disk disconnected
+      data:
+        tag: smb-disconnected
+    action: notify.mobile_app_aviad_phone
+  - wait_for_trigger:
+    - entity_id:
+      - sensor.system_monitor_disk_free_media_smb
+      trigger: state
+      from: unavailable
+  - data:
+      message: clear_notification
+      data:
+        tag: smb-disconnected
+    action: notify.mobile_app_aviad_phone
   mode: single
 - id: '1721752734315'
   alias: Alert when Tzet Hatzom
@@ -3183,23 +3106,177 @@
 - id: '1729492826254'
   alias: test template
   description: ''
-  triggers:
-  - value_template: '{% if states(''binary_sensor.is_school_vacation'') %}
-
-      {{ now() >= today_at(states(''input_datetime.morning_routine_baseline'')) +
-      timedelta(minutes = (states(''input_number.morning_vacation_delay'')| int))
-      }}
-
-      {% else %}
-
-      {{ now() >= today_at(states(''input_datetime.morning_routine_baseline'')) }}
-
-      {% endif %}'
-    trigger: template
+  triggers: []
   conditions: []
   actions:
   - action: persistent_notification.create
     metadata: {}
     data:
       message: Success
+    enabled: false
+  - action: script.get_random_song_from_playlist
+    metadata: {}
+    data:
+      playlist_id: 07c13wipxpcwEl7eMRJRjk
+    enabled: false
   mode: single
+- id: '1730829192764'
+  alias: Alert when Mini PC disconnected
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.mini_pc
+    to: 'off'
+    trigger: state
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    id: minipc
+  conditions: []
+  actions:
+  - metadata: {}
+    data:
+      message: Mini PC disconnected
+      data:
+        actions:
+        - action: finger_bot_toggle
+          title: Turn on
+        tag: mini-pc-disconnected
+    action: notify.mobile_app_aviad_phone
+  - wait_for_trigger:
+    - event_type: mobile_app_notification_action
+      event_data:
+        tag: mini-pc-disconnected
+      trigger: event
+    - entity_id:
+      - binary_sensor.mini_pc
+      to: 'on'
+      trigger: state
+    timeout:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - if:
+    - condition: template
+      value_template: '{{ wait.trigger and wait.trigger.event and wait.trigger.event.data
+        and wait.trigger.event.data.action == ''finger_bot_toggle'' }}'
+    then:
+    - target:
+        entity_id: switch.mini_pc_fingerbot_switch
+      data: {}
+      action: switch.toggle
+    - data:
+        message: clear_notification
+        data:
+          tag: mini-pc-disconnected
+      action: notify.mobile_app_aviad_phone
+    else:
+    - data:
+        message: clear_notification
+        data:
+          tag: mini-pc-disconnected
+      action: notify.mobile_app_aviad_phone
+  mode: single
+- id: '1732133474783'
+  alias: Kitchen WLED Music
+  description: ''
+  triggers:
+  - entity_id:
+    - media_player.sonos_kitchen
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+    to: playing
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: switch.wled_backlight_tv_sync_send
+    state: 'off'
+  actions:
+  - data:
+      effect: '{{ state_attr("light.wled_backlight_tv", "effect_list") | random }}'
+    target:
+      entity_id: light.wled_kitchen
+    action: light.turn_on
+  - target:
+      entity_id: select.wled_kitchen_color_palette
+    data:
+      option: '{{ state_attr(''select.wled_kitchen_color_palette'', ''options'') |
+        random }}'
+    action: select.select_option
+  - wait_for_trigger:
+    - entity_id:
+      - media_player.sonos_kitchen
+      from: playing
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 7
+      trigger: state
+    timeout:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - data: {}
+    target:
+      entity_id: light.wled_kitchen
+    action: light.turn_off
+  mode: restart
+- id: '1732136443914'
+  alias: Kitchen WLED motion sensor
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.espresense_kitchen_occupancy
+    to: 'on'
+    trigger: state
+    from: 'off'
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.mode
+      state: Shabbat
+    - condition: state
+      entity_id: binary_sensor.jewish_calendar_issur_melacha_in_effect
+      state: 'on'
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  - condition: state
+    entity_id: light.kitchen_switch
+    state: 'off'
+  actions:
+  - data:
+      kelvin: 6500
+      brightness_pct: 50
+      transition: 10
+      effect: Solid
+    action: light.turn_on
+    target:
+      entity_id: light.wled_kitchen
+  - wait_for_trigger:
+    - entity_id:
+      - binary_sensor.espresense_kitchen_occupancy
+      from: 'on'
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 0
+      trigger: state
+    timeout:
+      hours: 2
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - data:
+      transition: 15
+    action: light.turn_off
+    target:
+      entity_id: light.wled_kitchen
+  mode: restart
