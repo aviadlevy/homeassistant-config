@@ -509,10 +509,11 @@
   alias: Kitchen motion detection
   description: ''
   triggers:
-  - entity_id: binary_sensor.kitchen_motion_sensor
-    from: 'off'
-    to: 'on'
+  - entity_id:
+    - binary_sensor.kitchen_motion_sensor
     trigger: state
+    to: 'on'
+    from: 'off'
   conditions:
   - condition: not
     conditions:
@@ -660,27 +661,29 @@
       below: 10
       attribute: current_position
   actions:
+  - action: scene.create
+    metadata: {}
+    data:
+      scene_id: before_door
+      snapshot_entities:
+      - light.wled_kitchen
   - data:
       kelvin: 5390
       effect: solid
+      brightness_pct: 75
     target:
       entity_id:
       - light.entrance_bulb
       - light.wled_kitchen
     action: light.turn_on
-  - if:
-    - condition: time
-      before: 00:00:00
-      after: '19:00:00'
-    then:
-    - continue_on_error: true
-      data:
-        kelvin: 2000
-      target:
-        entity_id:
-        - light.small_kids_bedroom
-        - light.bathroom_bulb
-      action: light.turn_on
+  - continue_on_error: true
+    data:
+      kelvin: 2070
+    target:
+      entity_id:
+      - light.small_kids_bedroom
+      - light.bathroom_bulb
+    action: light.turn_on
   - wait_for_trigger:
     - entity_id:
       - binary_sensor.door_sensor
@@ -704,9 +707,18 @@
     target:
       entity_id:
       - light.entrance_bulb
-      - light.wled_kitchen
     action: light.turn_off
-  mode: restart
+  - action: scene.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: scene.before_door
+  - action: scene.delete
+    metadata: {}
+    data: {}
+    target:
+      entity_id: scene.before_door
+  mode: single
 - id: shabbat_1
   alias: Shabbat 1 - candle light plag
   description: ''
@@ -1484,26 +1496,26 @@
 - id: showert_morning
   alias: Shower in the morning
   description: ''
-  trigger:
-  - platform: time
-    at: 06:15:00
-  condition:
+  triggers:
+  - at: 06:15:00
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_select.mode
     state: Home
   - condition: state
     entity_id: input_boolean.morning_shower
     state: 'on'
-  action:
-  - service: switcher_kis.turn_on_with_timer
-    data:
-      timer_minutes: 20
+  actions:
+  - data:
+      timer_minutes: 30
     target:
       entity_id: switch.switcher_home
-  - service: input_boolean.turn_off
-    data: {}
+    action: switcher_kis.turn_on_with_timer
+  - data: {}
     target:
       entity_id: input_boolean.morning_shower
+    action: input_boolean.turn_off
   mode: single
 - id: vacuum_when_away
   alias: Vacuum when away
@@ -1619,10 +1631,14 @@
 - id: kids_heater_hass_restart
   alias: Kids heater when home assistant restart
   description: ''
-  trigger:
-  - platform: homeassistant
-    event: start
-  condition:
+  triggers:
+  - event: start
+    trigger: homeassistant
+  - trigger: state
+    entity_id:
+    - input_select.mode
+    to: Home
+  conditions:
   - condition: and
     conditions:
     - condition: not
@@ -1633,11 +1649,11 @@
     - condition: state
       entity_id: schedule.kids_heater_climate_scheduler
       state: 'on'
-  action:
-  - service: climate.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       entity_id: climate.kids_bedroom
+    action: climate.turn_on
   mode: single
 - id: alert_cloudy_day
   alias: Alert when cluody day
@@ -1645,6 +1661,10 @@
   triggers:
   - at: '16:30:00'
     trigger: time
+    id: weekday
+  - trigger: time
+    at: '12:00:00'
+    id: Friday
   conditions:
   - condition: not
     conditions:
@@ -1657,6 +1677,28 @@
   - condition: state
     entity_id: switch.switcher_home
     state: 'off'
+  - condition: or
+    conditions:
+    - condition: and
+      conditions:
+      - condition: trigger
+        id:
+        - Friday
+      - condition: time
+        weekday:
+        - fri
+    - condition: and
+      conditions:
+      - condition: trigger
+        id:
+        - weekday
+      - condition: time
+        weekday:
+        - thu
+        - wed
+        - tue
+        - mon
+        - sun
   actions:
   - data:
       message: We had {{states('sensor.average_cloudiness_8h')}} % average cloud coverage
@@ -1716,11 +1758,6 @@
       attribute: source
       state: TV
   actions:
-  - data:
-      effect: '{{ state_attr("light.wled_backlight_tv", "effect_list") | random }}'
-    target:
-      entity_id: light.wled_backlight_tv
-    action: light.turn_on
   - action: switch.turn_on
     metadata: {}
     data: {}
@@ -1728,6 +1765,12 @@
       entity_id:
       - switch.wled_backlight_tv_sync_send
       - switch.wled_kitchen_sync_receive
+  - data:
+      effect: '{{ state_attr("light.wled_backlight_tv", "effect_list")[1:118] | reject("equalto",
+        "RSVD") | list | random }}'
+    target:
+      entity_id: light.wled_backlight_tv
+    action: light.turn_on
   - target:
       entity_id: select.wled_backlight_tv_color_palette
     data:
@@ -2198,17 +2241,18 @@
         to mention in message: '{{states('sensor.jewish_calendar_date').split()[:2]
         | join(\" \") }}'\nGenerate text for a notification that will be be heard
         in our house speakers. no emojis.\n- You are a helpful personal agent that
-        generates text for the user. your answer should always be in Hebrew language\n-
-        Your answers are helpful, friendly, insightful and kids friendly.\n- Your
-        messages help the user prepare for their day, for example:\n  - Making note
-        of unusual weather for the location and time of year (but not mundane details
-        like \"0% chance of precipitation\")\n  - Anything that may be special or
-        unique, such as celebrating a birthday\n- Your message should not be longer
-        than 600 tokens! this is a hard requirement!\n- Your priority so everything
-        can be in that message is:\n  - Weather forcast, but ignore if temperature
-        is 0. it means something went wrong\n  - Upcoming calendar events\n  - adding
-        a joke or an insightful things happened today in history\n- Your answer should
-        contain 3 paragraphs, and 1 short goodbye paragraph. "
+        generates text for the Levy family. your answer should always be in Hebrew
+        language. Family members are: Dad, Mom, Yair, Ayala. in Hebrew spelled: אבא,
+        אמא, יאיר, אַיָּלָה (או איילה)\n- Your answers are helpful, friendly, insightful
+        and kids friendly.\n- Your messages help the user prepare for their day, for
+        example:\n  - Making note of unusual weather for the location and time of
+        year (but not mundane details like \"0% chance of precipitation\")\n  - Anything
+        that may be special or unique, such as celebrating a birthday\n- Your message
+        should not be longer than 600 tokens! this is a hard requirement!\n- Your
+        priority so everything can be in that message is:\n  - Weather forcast, but
+        ignore if temperature is 0. it means something went wrong\n  - Upcoming calendar
+        events\n  - adding a joke or an insightful thing\n- Your answer should contain
+        3 paragraphs, and 1 short goodbye paragraph. "
       agent_id: conversation.gemini_pro
     response_variable: agent
     action: conversation.process
@@ -2237,9 +2281,8 @@
 - id: oref_alert_time_to_shelter_countdown
   alias: Pikud HaOref routine
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.oref_alert
     to: 'on'
     for:
@@ -2247,48 +2290,36 @@
       minutes: 0
       seconds: 0
     from: 'off'
-  action:
-  - variables:
-      current_wled_state: '{{ states(''light.wled_backlight_tv'') }}'
-      current_entrance_state: '{{ states(''light.entrance_bulb'') }}'
+    trigger: state
+  actions:
+  - action: scene.create
+    metadata: {}
+    data:
+      scene_id: before_alert
+      snapshot_entities:
+      - light.wled_backlight_tv
+      - light.entrance_bulb
+      - light.wled_kitchen
   - data:
       title: התרעה
       message: בפתח תקווה
     action: notify.home_assistant_telegram
-  - if:
-    - condition: state
-      entity_id: light.wled_backlight_tv
-      state: 'off'
-    - condition: state
-      entity_id: light.living_room_lights
-      state: 'off'
-    then:
-    - metadata: {}
-      data:
-        transition: 5
-        kelvin: 2325
-        brightness_pct: 60
-      target:
-        entity_id: light.wled_backlight_tv
-      action: light.turn_on
-  - if:
-    - condition: state
-      entity_id: light.entrance_bulb
-      state: 'off'
-    - condition: state
-      entity_id: light.living_room_lights
-      state: 'off'
-    then:
-    - metadata: {}
-      target:
-        entity_id: light.entrance_bulb
-      data: {}
-      action: light.turn_on
-  - wait_for_trigger:
-    - platform: state
+  - metadata: {}
+    data:
+      transition: 5
+      kelvin: 2325
+      brightness_pct: 60
+    target:
       entity_id:
+      - light.wled_backlight_tv
+      - light.wled_kitchen
+      - light.entrance_bulb
+    action: light.turn_on
+  - wait_for_trigger:
+    - entity_id:
       - binary_sensor.oref_alert
       to: 'off'
+      trigger: state
     timeout:
       hours: 0
       minutes: 15
@@ -2313,25 +2344,16 @@
       minutes: 5
       seconds: 0
       milliseconds: 0
-  - if:
-    - condition: template
-      value_template: '{{ current_wled_state == "off" }}'
-    then:
-    - metadata: {}
-      data:
-        transition: 60
-      target:
-        entity_id: light.wled_backlight_tv
-      action: light.turn_off
-  - if:
-    - condition: template
-      value_template: '{{ current_entrance_state == "off" }}'
-    then:
-    - metadata: {}
-      data: {}
-      target:
-        entity_id: light.entrance_bulb
-      action: light.turn_off
+  - action: scene.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: scene.before_alert
+  - action: scene.delete
+    metadata: {}
+    data: {}
+    target:
+      entity_id: scene.before_alert
   mode: queued
   max: 10
 - id: alert_picking_yair
@@ -2401,6 +2423,7 @@
         weekday:
         - sun
         - thu
+        - fri
       sequence:
       - metadata: {}
         data:
@@ -2710,6 +2733,10 @@
       - update.city_mind_water_meter_update
       - update.mini_pc_fingerbot_firmware
       - update.spook_your_homie_update
+      - update.firemote_card_update
+      - update.file_editor_update
+      - update.spotifyplus_update
+      - update.wled_kitchen_firmware
       mobile_app_device: 4214920656084e3e0376f9a6c7b2eb48
       reminder_hours: ''
       only_after: 08:00:00
@@ -2765,14 +2792,14 @@
       data:
         volume_level: 0.25
       target:
-        entity_id: media_player.echo_bedroom
+        entity_id: media_player.bedroom_echo_dot
       action: media_player.volume_set
     else:
     - metadata: {}
       data:
         volume_level: 1
       target:
-        entity_id: media_player.echo_bedroom
+        entity_id: media_player.bedroom_echo_dot
       action: media_player.volume_set
     - target:
         entity_id: media_player.mibox
@@ -2782,7 +2809,10 @@
     - metadata: {}
       data: {}
       target:
-        entity_id: light.bed_led_strip
+        entity_id:
+        - light.bed_led_strip
+        - light.parent_bathroom_bulb
+        - light.closet_bulb
       action: light.turn_off
   mode: single
 - id: home_wifi_routine
@@ -2892,6 +2922,11 @@
   - at: '15:30:00'
     id: 'on'
     trigger: time
+  - trigger: state
+    entity_id:
+    - input_select.mode
+    to: Home
+    id: 'on'
   conditions:
   - condition: state
     entity_id: binary_sensor.is_school_vacation
@@ -2906,6 +2941,18 @@
     - tue
     - wed
     - thu
+  - condition: or
+    conditions:
+    - condition: and
+      conditions:
+      - condition: trigger
+        id:
+        - 'on'
+      - condition: time
+        after: '15:00:00'
+    - condition: trigger
+      id:
+      - 'off'
   actions:
   - target:
       entity_id: light.bathroom_bulb
@@ -3004,18 +3051,18 @@
 - id: '1721752734315'
   alias: Alert when Tzet Hatzom
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.jewish_calendar_holiday
     attribute: type
     from: FAST_DAY
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - wait_for_trigger:
-    - platform: state
-      entity_id:
+    - entity_id:
       - sensor.jewish_calendar_t_set_hakochavim
+      trigger: state
     continue_on_timeout: true
     timeout:
       hours: 0
@@ -3040,7 +3087,7 @@
     action: chime_tts.say
   - data:
       message: 'Tzet HaTzom '
-    action: notify.alexa_media_echo_bedroom
+    action: notify.alexa_media_bedroom_echo_dot
   - if:
     - condition: state
       entity_id: person.aviad
@@ -3087,6 +3134,21 @@
     metadata: {}
     target:
       entity_id: scene.movie
+    data: {}
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: button.wake_on_lan_mitv
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.wled_kitchen
   mode: single
 - id: '1728804893672'
   alias: When Movie scene activated
@@ -3128,57 +3190,65 @@
     - binary_sensor.mini_pc
     to: 'off'
     trigger: state
-    for:
+    id: minipc
+  - trigger: homeassistant
+    event: start
+  conditions: []
+  actions:
+  - delay:
       hours: 0
       minutes: 5
       seconds: 0
-    id: minipc
-  conditions: []
-  actions:
-  - metadata: {}
-    data:
-      message: Mini PC disconnected
-      data:
-        actions:
-        - action: finger_bot_toggle
-          title: Turn on
-        tag: mini-pc-disconnected
-    action: notify.mobile_app_aviad_phone
-  - wait_for_trigger:
-    - event_type: mobile_app_notification_action
-      event_data:
-        tag: mini-pc-disconnected
-      trigger: event
-    - entity_id:
-      - binary_sensor.mini_pc
-      to: 'on'
-      trigger: state
-    timeout:
-      hours: 1
-      minutes: 0
-      seconds: 0
       milliseconds: 0
   - if:
-    - condition: template
-      value_template: '{{ wait.trigger and wait.trigger.event and wait.trigger.event.data
-        and wait.trigger.event.data.action == ''finger_bot_toggle'' }}'
+    - condition: state
+      entity_id: binary_sensor.mini_pc
+      state: 'off'
     then:
-    - target:
-        entity_id: switch.mini_pc_fingerbot_switch
-      data: {}
-      action: switch.toggle
-    - data:
-        message: clear_notification
+    - metadata: {}
+      data:
+        message: Mini PC disconnected
         data:
+          actions:
+          - action: finger_bot_toggle
+            title: Turn on
           tag: mini-pc-disconnected
       action: notify.mobile_app_aviad_phone
-    else:
-    - data:
-        message: clear_notification
-        data:
+    - wait_for_trigger:
+      - event_type: mobile_app_notification_action
+        event_data:
           tag: mini-pc-disconnected
-      action: notify.mobile_app_aviad_phone
-  mode: single
+        trigger: event
+      - entity_id:
+        - binary_sensor.mini_pc
+        to: 'on'
+        trigger: state
+      timeout:
+        hours: 1
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - if:
+      - condition: template
+        value_template: '{{ wait.trigger and wait.trigger.event and wait.trigger.event.data
+          and wait.trigger.event.data.action == ''finger_bot_toggle'' }}'
+      then:
+      - target:
+          entity_id: switch.mini_pc_fingerbot_switch
+        data: {}
+        action: switch.toggle
+      - data:
+          message: clear_notification
+          data:
+            tag: mini-pc-disconnected
+        action: notify.mobile_app_aviad_phone
+      else:
+      - data:
+          message: clear_notification
+          data:
+            tag: mini-pc-disconnected
+        action: notify.mobile_app_aviad_phone
+  mode: restart
 - id: '1732133474783'
   alias: Kitchen WLED Music
   description: ''
@@ -3197,7 +3267,9 @@
     state: 'off'
   actions:
   - data:
-      effect: '{{ state_attr("light.wled_backlight_tv", "effect_list") | random }}'
+      brightness_pct: 90
+      effect: '{{ state_attr("light.wled_kitchen", "effect_list")[1:118] | reject("equalto",
+        "RSVD") | list | random }}'
     target:
       entity_id: light.wled_kitchen
     action: light.turn_on
@@ -3280,3 +3352,80 @@
     target:
       entity_id: light.wled_kitchen
   mode: restart
+- id: '1732870692023'
+  alias: Kitchen WLED routine
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.wled_kitchen
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.wled_kitchen_main
+  mode: single
+- id: '1733873712830'
+  alias: Alert when no free space
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.desktop_levy_storage_c_free_space
+    - sensor.system_monitor_disk_free
+    - sensor.system_monitor_disk_free_media_smb
+    below: 30
+  conditions: []
+  actions:
+  - action: notify.home_assistant_telegram
+    metadata: {}
+    data:
+      message: '{{ trigger.to_state.name }} is running out of free space'
+  mode: single
+- id: '1736891049343'
+  alias: Alert when needs to water the plant
+  description: ''
+  triggers:
+  - trigger: time
+    at: '18:00:00'
+  conditions:
+  - condition: time
+    weekday:
+    - thu
+    - wed
+    - tue
+    - mon
+    - sun
+  - condition: numeric_state
+    entity_id: sensor.plant_soil_tester_soil_moisture
+    below: 85
+  - condition: state
+    entity_id: input_select.mode
+    state: Home
+  actions:
+  - action: notify.aviad_and_noga_mobiles
+    metadata: {}
+    data:
+      message: להשקות אותי בבקשה
+      title: עציץ בסלון
+  - action: chime_tts.say
+    metadata: {}
+    data:
+      message: נא להשקות את העציץ בסלון
+      tts_platform: google_translate
+      join_players: true
+      unjoin_players: true
+      cache: true
+      announce: true
+      fade_audio: true
+      language: iw
+      chime_path: toast
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+      - media_player.sonos_kitchen
+      - media_player.sonos_kids_bedroom
+  mode: single

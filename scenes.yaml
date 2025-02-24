@@ -295,7 +295,7 @@
     light.wled_kitchen:
       effect: Solid
       color_mode: rgb
-      brightness: 128
+      brightness: 38
       hs_color:
       - 48
       - 1.961
@@ -309,8 +309,6 @@
       friendly_name: WLED Kitchen
       state: 'on'
   metadata:
-    light.wled_kitchen:
-      entity_only: true
     light.living_room_lights:
       entity_only: true
     light.kitchen_switch:
@@ -333,7 +331,7 @@
       entity_only: true
     switch.smart_plug_kids_bedroom:
       entity_only: true
-    cover.switcher_runner:
+    light.wled_kitchen:
       entity_only: true
 - id: shabbat_morning_cloud
   name: Shabbat 3 Morning Cloudy
@@ -526,7 +524,6 @@
   icon: mdi:fan
 - id: '1728798978848'
   name: Movie
-  icon: mdi:movie
   entities:
     cover.switcher_runner:
       current_position: 10
@@ -550,23 +547,24 @@
       color_mode: rgb
       brightness: 128
       hs_color:
-      - 48
-      - 1.961
+      - 27.6
+      - 19.608
       rgb_color:
       - 255
-      - 254
-      - 250
+      - 228
+      - 205
       xy_color:
-      - 0.326
-      - 0.333
+      - 0.372
+      - 0.35
       friendly_name: WLED Kitchen
       state: 'on'
+  icon: mdi:movie
   metadata:
-    light.wled_kitchen:
-      entity_only: true
     cover.switcher_runner:
       entity_only: true
     light.living_room_lights:
       entity_only: true
     light.kitchen_switch:
+      entity_only: true
+    light.wled_kitchen:
       entity_only: true

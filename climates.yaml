@@ -3,7 +3,7 @@
   name: Kids Bedroom
   heater: switch.smart_plug_il
   target_sensor: sensor.kids_temperature
-  target_temp: 18.5
+  target_temp: 19.0
   cold_tolerance: 0.3
   hot_tolerance: 0.2
   ac_mode: false
