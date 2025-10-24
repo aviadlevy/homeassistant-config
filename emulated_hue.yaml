@@ -5,6 +5,8 @@ exposed_domains:
   - light
   - fan
   - cover
+  - script
+  - vacuum
 entities:
   light.kitchen_switch:
     name: "Kitchen Light"

@@ -99,27 +99,35 @@ disable_hyperion:
 clean_carpet:
   alias: Clean Carpet
   sequence:
-  - service: dreame_vacuum.vacuum_clean_zone
-    data:
+  - data:
       repeats: 2
       zone:
-      - - -907
-        - 676
-        - 1198
-        - 1796
+      - - -1850
+        - -1649
+        - 755
+        - -405
     target:
       entity_id: vacuum.dreame_robot_vacuum_d9
+    action: dreame_vacuum.vacuum_clean_zone
   mode: single
   icon: mdi:rug
 echo_say_the_time:
   alias: Echo say the time
   sequence:
-  - data:
+  - action: chime_tts.say
+    metadata: {}
+    data:
+      language: iw
+      cache: true
+      tts_platform: google_translate
       message: "{% if now().strftime('%H')|int < 12 and now().strftime('%H')|int >
-        4 %}\n   Good morning!\n{% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int
-        < 16 %}\n   Good afternoon!\n{% else %}\n   Good evening!\n{% endif %} The
-        current time is {{ now().strftime('%H %M') }}."
-    action: notify.alexa_media_bedroom_echo_dot
+        4 %}\n   בוקר טוב!\n{% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int
+        < 16 %}\n   אחר הצהריים טובים!\n{% else %}\n   ערב טוב!\n{% endif %}השעה  {{
+        now().strftime('%I') | int }} {% if (now().strftime('%M')|int) != 0 %} ו{{
+        now().strftime('%M') }} דקות. {% endif %}"
+      chime_path: ding_dong
+    target:
+      entity_id: media_player.bedroom_echo_dot
   mode: single
   icon: mdi:clock-time-eight
 get_random_song_from_playlist:
@@ -146,3 +154,64 @@ get_random_song_from_playlist:
       name: Playlist ID
       required: true
   icon: mdi:play
+fire_event_suggest_song:
+  sequence:
+  - event: suggest_a_song
+    event_data: {}
+  alias: Fire event - suggest song
+  description: ''
+set_up_sonos_group_music_casting:
+  sequence:
+  - data:
+      is_volume_muted: false
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+      - media_player.sonos_kitchen
+      - media_player.sonos_kids_bedroom
+    action: media_player.volume_mute
+  - data:
+      group_members:
+      - media_player.sonos_living_room
+      - media_player.sonos_kids_bedroom
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+    action: media_player.join
+  - data:
+      volume_level: 0.23
+    target:
+      entity_id:
+      - media_player.sonos_living_room
+    action: media_player.volume_set
+  - data:
+      volume_level: 0.4
+    target:
+      entity_id: media_player.sonos_kids_bedroom
+    action: media_player.volume_set
+  - data:
+      volume_level: 0.3
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+    action: media_player.volume_set
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  alias: Set up sonos group music casting
+  mode: single
+  icon: mdi:cast
+  description: ''
+clean_living_room:
+  sequence:
+  - action: dreame_vacuum.vacuum_clean_segment
+    metadata: {}
+    data:
+      segments: 11
+      repeats: 1
+    target:
+      entity_id: vacuum.dreame_robot_vacuum_d9
+  alias: Clean living room
+  description: ''

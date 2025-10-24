@@ -6,4 +6,9 @@
 
 - platform: telegram
   name: "Home Assistant Telegram"
+  chat_id: !secret telgram_levy_group_chat_id
+
+
+- platform: telegram
+  name: "Home Assistant Direct Telegram"
   chat_id: !secret telegram_chat_id

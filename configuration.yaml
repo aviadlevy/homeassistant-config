@@ -16,7 +16,6 @@ recorder: !include recorder.yaml
 google_assistant: !include google_assistant.yaml
 logbook: !include logbook.yaml
 tts: !include tts.yaml
-telegram_bot: !include telegram_bot.yaml
 mqtt: !include mqtt.yaml
 emulated_hue: !include emulated_hue.yaml
 
