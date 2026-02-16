@@ -217,3 +217,70 @@ clean_living_room:
       entity_id: vacuum.dreame_robot_vacuum_d9
   alias: Clean living room
   description: ''
+generate_ai_content:
+  alias: Generate AI content with retry
+  description: Generates AI content using Gemini Pro, retries with Gemini Flash Pro on failure, stores result in input_text entity
+  fields:
+    prompt_text:
+      selector:
+        text:
+      name: AI Prompt Text
+      required: true
+    output_entity:
+      selector:
+        entity:
+          domain: input_text
+      name: Output Entity
+      required: true
+    fallback_response:
+      selector:
+        text:
+      name: Fallback Response
+      required: false
+      default: ''
+    normalize_ayala:
+      selector:
+        boolean:
+      name: Normalize Ayala spelling
+      required: false
+      default: true
+  sequence:
+  - metadata: {}
+    data:
+      text: '{{ prompt_text }}'
+      agent_id: conversation.gemini_pro
+    response_variable: agent
+    action: conversation.process
+  - alias: Validate AI response and retry
+    if:
+    - condition: template
+      value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry, I had a problem getting a response from Google Generative AI." or agent.response[''response_type''] == ''error'' }}'
+    then:
+    - metadata: {}
+      data:
+        text: '{{ prompt_text }}'
+        agent_id: conversation.gemini_flash_pro
+      response_variable: agent
+      action: conversation.process
+    - if:
+      - condition: template
+        value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry, I had a problem getting a response from Google Generative AI." or agent.response[''response_type''] == ''error'' }}'
+      then:
+      - action: input_text.set_value
+        target:
+          entity_id: '{{ output_entity }}'
+        data:
+          value: '{{ fallback_response if fallback_response != "" else "Unable to generate AI response" }}'
+      else:
+      - action: input_text.set_value
+        target:
+          entity_id: '{{ output_entity }}'
+        data:
+          value: "{% if normalize_ayala %}\n{{ agent.response.speech.plain.speech | replace(\"אילה\", \"אַיָּלָה\") }}\n{% else %}\n{{ agent.response.speech.plain.speech }}\n{% endif %}"
+    else:
+    - action: input_text.set_value
+      target:
+        entity_id: '{{ output_entity }}'
+      data:
+        value: "{% if normalize_ayala %}\n{{ agent.response.speech.plain.speech | replace(\"אילה\", \"אַיָּלָה\") }}\n{% else %}\n{{ agent.response.speech.plain.speech }}\n{% endif %}"
+  mode: single

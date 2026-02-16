@@ -1,6 +1,6 @@
 - id: night_environment_routine
   alias: Night environment routine
-  description: ''
+  description: Controls night/morning environment - turns on kids plug and quiets vacuum at 18:30, reverses in the morning based on schedule/vacation/Shabbat
   triggers:
   - at: '18:30:00'
     id: 'on'
@@ -100,7 +100,7 @@
   mode: single
 - id: backlight_tv
   alias: Backlight TV
-  description: ''
+  description: Controls TV backlight WLED based on TV power state with Hyperion coordination
   triggers:
   - entity_id:
     - media_player.mitv
@@ -356,7 +356,7 @@
   mode: single
 - id: lights_out
   alias: Lights out
-  description: ''
+  description: Turns off all lights at 08:00/09:00, deactivates kids climate, and preserves bedroom fan state if room is occupied
   triggers:
   - at: 08:00:00
     trigger: time
@@ -401,7 +401,7 @@
   mode: single
 - id: bed_md
   alias: Bed motion detection
-  description: ''
+  description: Turns on bed LED strip on motion at night when projector is off, turns off after motion stops
   triggers:
   - from: 'off'
     to: 'on'
@@ -464,7 +464,7 @@
   mode: restart
 - id: light_on_door
   alias: Lights on when opening door
-  description: ''
+  description: Saves kitchen light state, turns on entrance lights when door opens, restores after door closes
   triggers:
   - entity_id:
     - binary_sensor.door_sensor
@@ -549,7 +549,7 @@
   mode: single
 - id: shabbat_1
   alias: Shabbat 1 - candle light plag
-  description: ''
+  description: Announces candle lighting time at plag hamincha during early Shabbat
   triggers:
   - value_template: '{{ as_timestamp(states(''sensor.jewish_calendar_plag_hamincha''))|timestamp_custom(''%H:%M'',
       true) == as_timestamp(now())|timestamp_custom(''%H:%M'', true) }}'
@@ -584,7 +584,7 @@
   mode: single
 - id: alert_high_temp
   alias: Alert when high temperature
-  description: ''
+  description: Sends mobile notification when processor temperature exceeds 67C for 10 minutes
   trigger:
   - platform: numeric_state
     entity_id:
@@ -603,7 +603,7 @@
   mode: single
 - id: alert_omer
   alias: Alert when Sfirat HaOmer
-  description: ''
+  description: Announces Sfirat HaOmer count via Telegram and Sonos speakers after the day changes
   triggers:
   - entity_id:
     - sensor.jewish_calendar_day_of_the_omer
@@ -661,7 +661,7 @@
   mode: single
 - id: alert_washing_machine_finished
   alias: Fire event when washing machine finished
-  description: ''
+  description: Detects washing machine completion by monitoring power drop, then fires washing_machine_finished event
   triggers:
   - entity_id: sensor.washing_machine_socket_power
     for:
@@ -692,7 +692,7 @@
   max_exceeded: silent
 - id: alert_phone_low_battery_aviad
   alias: Alert when phone low battery - Aviad
-  description: ''
+  description: Repeatedly alerts Aviad about low phone battery every 20 minutes until charging, Shabbat, or battery recovers
   trigger:
   - platform: numeric_state
     entity_id:
@@ -774,7 +774,7 @@
   mode: single
 - id: alert_phone_low_battery_noga
   alias: Alert when phone low battery - Noga
-  description: ''
+  description: Alerts Noga when phone battery drops below 40% during daytime
   trigger:
   - platform: numeric_state
     entity_id: sensor.noga_phone_battery_level
@@ -798,7 +798,7 @@
   mode: single
 - id: tag_scanned_parent_bathroom
   alias: Tag parent bathroom is scanned
-  description: ''
+  description: Toggles parent bathroom lights when NFC tag is scanned
   trigger:
   - platform: tag
     tag_id: 17137ac4-9193-4ce7-a194-43126a8b63b9
@@ -811,7 +811,7 @@
   mode: single
 - id: lights_washing_machine_finished
   alias: When washing machine finished
-  description: ''
+  description: Notifies and announces washing machine completion, turns balcony light blue, repeats until door opened or tag scanned
   triggers:
   - event_type: washing_machine_finished
     trigger: event
@@ -931,7 +931,7 @@
   mode: single
 - id: shabbat_guests
   alias: Guests for Shabbat
-  description: ''
+  description: Enables Shabbat dinner guests toggle when guests input is turned on
   trigger:
   - platform: state
     entity_id:
@@ -946,7 +946,7 @@
   mode: single
 - id: shabbat_2
   alias: Shabbat 2 - lights scenes
-  description: ''
+  description: Controls Shabbat lighting scenes throughout the day - evening, night, morning, meal, afternoon, and pre-sunset
   triggers:
   - event: sunset
     offset: '1:00:00'
@@ -1118,7 +1118,7 @@
   max: 10
 - id: shabbat_3
   alias: Shabbat 3 - fans scenes
-  description: ''
+  description: Controls Shabbat fan scenes at scheduled times with guest fan handling
   triggers:
   - entity_id:
     - input_select.mode
@@ -1215,7 +1215,7 @@
   mode: single
 - id: tag_scanned_waching_machine
   alias: Washing machine tag state
-  description: ''
+  description: Sets washing machine tag as scanned, turns on balcony light, resets after 40 minutes
   trigger:
   - platform: tag
     tag_id: 93d413b2-e019-43c7-a394-ad8db3bc8f34
@@ -1243,7 +1243,7 @@
   mode: single
 - id: zigbee_switch_balcony
   alias: Zigbee balcony switch automation
-  description: ''
+  description: Controls balcony light via Zigbee Sonoff switch with color temperature preset
   use_blueprint:
     path: homeassistant/sonoff_switch.yaml
     input:
@@ -1264,7 +1264,7 @@
         action: light.turn_on
 - id: zigbee_switch_parents_bathroom
   alias: Zigbee parents bathroom switch automation
-  description: ''
+  description: Controls parent bathroom lights via Zigbee Sonoff switch
   use_blueprint:
     path: homeassistant/sonoff_switch.yaml
     input:
@@ -1287,7 +1287,7 @@
           entity_id: light.parents_bathroom_lights
 - id: alert_download_finished
   alias: Alert when download is finished
-  description: ''
+  description: Sends mobile notification when qBittorrent download speed drops below 1 for 10 minutes
   trigger:
   - platform: numeric_state
     entity_id: sensor.qbittorrent_down_speed
@@ -1313,7 +1313,7 @@
   mode: restart
 - id: ble_transimitter_active_when_home
   alias: BLE transmitter active only at home
-  description: ''
+  description: Toggles phone BLE transmitter on when home, off when away with 3 minute delay
   trigger:
   - platform: state
     entity_id:
@@ -1358,7 +1358,7 @@
   mode: single
 - id: showert_morning
   alias: Shower in the morning
-  description: ''
+  description: Turns on water heater for 30 minutes at 06:15 if morning shower is enabled, then disables the toggle
   triggers:
   - at: 06:15:00
     trigger: time
@@ -1382,7 +1382,7 @@
   mode: single
 - id: vacuum_when_away
   alias: Vacuum when away
-  description: ''
+  description: Starts robot vacuum on selected segments after 10 minutes in Away mode, if enabled
   triggers:
   - entity_id:
     - input_select.mode
@@ -1412,7 +1412,7 @@
   mode: single
 - id: kids_heater_routine
   alias: Kids heater climate routine
-  description: ''
+  description: Turns kids bedroom heater on/off based on schedule state, skips turn-on when in Away mode
   trigger:
   - platform: state
     entity_id:
@@ -1448,7 +1448,7 @@
   mode: single
 - id: kids_heater_switch
   alias: Kids heater climate - connect to switch
-  description: ''
+  description: Syncs kids bedroom heater with smart plug switch state when not in Away mode
   trigger:
   - platform: state
     entity_id:
@@ -1478,7 +1478,7 @@
   mode: single
 - id: mobile_event_longer_battery_notification_snooze
   alias: Mobile Event Fired - Longer low notification snooze
-  description: ''
+  description: Enables longer battery notification snooze when mobile app action is triggered
   trigger:
   - platform: event
     event_type: mobile_app_notification_action
@@ -1493,7 +1493,7 @@
   mode: single
 - id: kids_heater_hass_restart
   alias: Kids heater when home assistant restart
-  description: ''
+  description: Restores kids bedroom heater on HA restart or mode change to Home if schedule is active
   triggers:
   - event: start
     trigger: homeassistant
@@ -1520,7 +1520,7 @@
   mode: single
 - id: alert_cloudy_day
   alias: Alert when cluody day
-  description: ''
+  description: Alerts on cloudy days when boiler is off, with option to turn on boiler for 30 minutes
   triggers:
   - at: '16:30:00'
     trigger: time
@@ -1603,7 +1603,7 @@
   mode: single
 - id: backlight_tv_music
   alias: Backlight TV Music
-  description: ''
+  description: Activates TV backlight WLED with random effect when Sonos plays music (not TV source), turns off when music stops
   triggers:
   - entity_id:
     - media_player.sonos_living_room
@@ -1668,7 +1668,7 @@
   mode: restart
 - id: hyperion_activation
   alias: Hyperion Activation
-  description: ''
+  description: Activates or disables Hyperion ambilight scripts based on input_boolean state
   trigger:
   - platform: state
     entity_id:
@@ -1695,7 +1695,7 @@
   mode: single
 - id: alert_noga_heading_home
   alias: Alert when Noga is heading home
-  description: ''
+  description: Notifies Aviad when Noga is within 2km and heading towards home
   triggers:
   - entity_id:
     - sensor.noga_distance
@@ -1732,7 +1732,7 @@
   mode: single
 - id: office_md
   alias: Office motion detection
-  description: ''
+  description: Turns on office desk light on occupancy at night, turns off 40 seconds after occupancy clears
   triggers:
   - from: 'off'
     to: 'on'
@@ -1789,7 +1789,7 @@
   mode: restart
 - id: one_time_automation_noga_home
   alias: One-time automation - Alert
-  description: ''
+  description: One-time alert that sends Telegram message when Aviad arrives home, then disables itself
   triggers:
   - entity_id:
     - person.aviad
@@ -1811,7 +1811,7 @@
   mode: single
 - id: dismiss_Alert_when_charging
   alias: Dismiss alert when charging
-  description: ''
+  description: Clears low battery notification when Aviad phone starts charging
   trigger:
   - platform: state
     entity_id:
@@ -1827,7 +1827,7 @@
   mode: single
 - id: alert_when_raining
   alias: Alert when raining
-  description: ''
+  description: Notifies when rain detected and shutter is open, with option to close shutter to 19%
   trigger:
   - platform: state
     entity_id:
@@ -1900,7 +1900,7 @@
   mode: single
 - id: night_env_routine_shutter
   alias: Night environment routine - shutter
-  description: ''
+  description: Closes living room shutter to 17% at 22:30 if currently more open
   triggers:
   - at: '22:30:00'
     trigger: time
@@ -1922,7 +1922,7 @@
   mode: single
 - id: alert_sonos_roam_low_battery
   alias: Alert on low Sonos Roam battery
-  description: ''
+  description: Sends notification when Sonos Roam battery drops below 40%
   triggers:
   - entity_id: sensor.kids_bedroom_battery
     below: 40
@@ -1943,7 +1943,7 @@
     battery_level: '{{ states(trigger.entity_id) }}'
 - id: hyperion_per_app
   alias: Hyperion Activation per app
-  description: ''
+  description: Controls Hyperion ambilight based on active TV app - enables for FreeTV/SmartTube/VLC, disables for Netflix/HDMI/Launcher
   triggers:
   - entity_id:
     - media_player.mitv_adb
@@ -2063,7 +2063,7 @@
   mode: single
 - id: alert_and_speak_day_agenda
   alias: Alert and speak day agenda
-  description: ''
+  description: Generates AI morning briefing with weather, calendar, and Jewish calendar, announces on speakers and Telegram
   triggers:
   - value_template: '{% if states(''binary_sensor.is_school_vacation'') == ''on''  or
       (is_state(''input_boolean.delay_morning_routine'' ,''on'')) %}
@@ -2155,49 +2155,13 @@
 
         '
     alias: Define AI request
-  - metadata: {}
+  - action: script.generate_ai_content
     data:
-      text: '{{ ai_request }}'
-      agent_id: conversation.gemini_pro
-    response_variable: agent
-    action: conversation.process
-  - alias: Validate AI response and retry
-    if:
-    - condition: template
-      value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry,
-        I had a problem getting a response from Google Generative AI." or agent.response[''response_type'']
-        == ''error'' }}'
-    then:
-    - metadata: {}
-      data:
-        text: '{{ ai_request }}'
-        agent_id: conversation.gemini_flash_pro
-      response_variable: agent
-      action: conversation.process
-    - if:
-      - condition: template
-        value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry,
-          I had a problem getting a response from Google Generative AI." or agent.response[''response_type'']
-          == ''error'' }}'
-      then:
-      - data:
-          message: Unable to get AI response
-          data:
-            inline_keyboard: Suggest a song:/suggest_song
-        action: notify.home_assistant_telegram
-      - variables:
-          ai_response: 'בוקר טוב משפחת לוי! שיהיה לכם יום נעים מלא בחוויות טובות
-
-            '
-      else:
-      - variables:
-          ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
-            }}'
-    enabled: true
-    else:
-    - variables:
-        ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
-          }}'
+      prompt_text: '{{ ai_request }}'
+      output_entity: input_text.current_song_reason
+      fallback_response: 'בוקר טוב משפחת לוי! שיהיה לכם יום נעים מלא בחוויות טובות'
+  - variables:
+      ai_response: '{{ states(''input_text.current_song_reason'') }}'
   - data:
       data:
         inline_keyboard: Suggest a song:/suggest_song
@@ -2233,7 +2197,7 @@
   mode: single
 - id: oref_alert_time_to_shelter_countdown
   alias: Pikud HaOref routine
-  description: ''
+  description: Handles emergency alert - saves light/fan scene, adjusts to warm lighting, waits for all-clear, then restores
   triggers:
   - entity_id:
     - binary_sensor.oref_alert
@@ -2410,7 +2374,7 @@
   mode: restart
 - id: alert_picking_yair
   alias: Alert when picking Yair
-  description: ''
+  description: Reminds parent picking up Yair to verify he has his school items when entering school zone
   trigger:
   - platform: zone
     entity_id: person.aviad
@@ -2451,7 +2415,7 @@
   mode: single
 - id: who_pick_kids
   alias: Who's picking the kids
-  description: ''
+  description: Sets daily pickup parent at 08:00 - Noga on Tue/Wed, Aviad on Sun/Thu/Fri
   triggers:
   - at: 08:00:00
     trigger: time
@@ -2486,7 +2450,7 @@
   mode: single
 - id: shabbat_4
   alias: Shabbat 4 - rain routine
-  description: ''
+  description: Adjusts shutter and living room lights during Shabbat morning based on rain status
   trigger:
   - platform: state
     entity_id:
@@ -2558,7 +2522,7 @@
   mode: single
 - id: one_time_automation_office_md
   alias: One time automation - office motion
-  description: ''
+  description: Re-enables office motion detection at 08:00, then disables itself
   trigger:
   - platform: time
     at: 08:00:00
@@ -2580,7 +2544,7 @@
   mode: single
 - id: alert_pending_updates
   alias: Alert when pending updates
-  description: ''
+  description: Sends notifications for pending Home Assistant component and integration updates
   use_blueprint:
     path: mdegat01/update_notifications.yaml
     input:
@@ -2654,7 +2618,7 @@
       mobile_app_device_2: 4214920656084e3e0376f9a6c7b2eb48
 - id: zigbee_switch_closet
   alias: Zigbee closet switch automation
-  description: ''
+  description: Controls closet light via Zigbee Sonoff switch
   use_blueprint:
     path: homeassistant/sonoff_switch.yaml
     input:
@@ -2669,7 +2633,7 @@
       on_action: []
 - id: echo_volume_routine
   alias: Projector in bedroom routine
-  description: ''
+  description: Adjusts Alexa volume and turns off bedroom lights when projector turns on, restores volume when off
   triggers:
   - entity_id:
     - remote.mibox3
@@ -2724,7 +2688,7 @@
   mode: single
 - id: home_wifi_routine
   alias: Home WIFI connection routine
-  description: ''
+  description: Publishes MQTT home/not_home location based on phone WiFi connection to home network
   trigger:
   - platform: state
     entity_id:
@@ -2765,7 +2729,7 @@
   mode: restart
 - id: shabbat_1_1
   alias: Shabbat 1.1 - Kriat Shma when early shabbat
-  description: ''
+  description: Reminds to repeat Kriat Shma at Tzet HaKochavim during early Shabbat
   triggers:
   - value_template: '{{ as_timestamp(states(''sensor.jewish_calendar_t_set_hakochavim''))|timestamp_custom(''%H:%M'',
       true) == as_timestamp(now())|timestamp_custom(''%H:%M'', true) }}'
@@ -2798,7 +2762,7 @@
   mode: single
 - id: shabbat_1_2
   alias: Shabbat 1.2 - wake up
-  description: ''
+  description: Announces the current time 3 times with 15-minute intervals on Shabbat for wake-up
   triggers:
   - at: input_datetime.shabbat_morning_lights_on
     trigger: time
@@ -2825,7 +2789,7 @@
   mode: single
 - id: '1716104348579'
   alias: Kids in school routine
-  description: ''
+  description: Controls bathroom light and shutter position based on school hours on weekdays
   triggers:
   - at: 08:30:00
     id: 'off'
@@ -2893,7 +2857,7 @@
   mode: single
 - id: '1720729188404'
   alias: Alert when Samba disconnected
-  description: ''
+  description: Alerts when Samba share becomes unavailable, clears notification when reconnected
   triggers:
   - trigger: state
     entity_id:
@@ -2933,7 +2897,7 @@
   mode: single
 - id: '1721752734315'
   alias: Alert when Tzet Hatzom
-  description: ''
+  description: Announces fast day end on Sonos speakers and Echo, notifies Aviad if not home
   triggers:
   - entity_id:
     - sensor.jewish_calendar_holiday
@@ -2986,7 +2950,7 @@
   mode: single
 - id: '1724096343618'
   alias: Recover qbittorrent
-  description: ''
+  description: Restarts qBittorrent addon if stuck in downloading state for 1 hour
   trigger:
   - platform: state
     entity_id:
@@ -3010,7 +2974,7 @@
   mode: single
 - id: '1728804453243'
   alias: Tag Sofa is scanned
-  description: ''
+  description: Activates movie scene, wakes TV, and turns off kitchen WLED when sofa NFC tag is scanned
   triggers:
   - trigger: tag
     tag_id: ee249a7f-c780-4c3e-a649-1027e2c37ec7
@@ -3038,7 +3002,7 @@
   mode: single
 - id: '1728804893672'
   alias: When Movie scene activated
-  description: ''
+  description: Wakes TV via Wake-on-LAN when movie scene is activated
   triggers:
   - trigger: state
     entity_id:
@@ -3053,7 +3017,7 @@
   mode: single
 - id: '1729492826254'
   alias: test template
-  description: ''
+  description: Test automation for template development (no triggers, actions disabled)
   triggers: []
   conditions: []
   actions:
@@ -3070,7 +3034,7 @@
   mode: single
 - id: '1730829192764'
   alias: Alert when Mini PC disconnected
-  description: ''
+  description: Alerts when Mini PC goes offline, offers fingerbot toggle to power on, clears on reconnect
   triggers:
   - entity_id:
     - binary_sensor.mini_pc
@@ -3142,7 +3106,7 @@
   mode: restart
 - id: '1732133474783'
   alias: Kitchen WLED Music
-  description: ''
+  description: Activates kitchen WLED with random effect when kitchen Sonos plays, turns off when music stops
   triggers:
   - entity_id:
     - media_player.sonos_kitchen
@@ -3191,7 +3155,7 @@
   mode: restart
 - id: '1732136443914'
   alias: Kitchen WLED motion sensor
-  description: ''
+  description: Turns on kitchen WLED as ambient light on motion when main light is off, turns off when clear
   triggers:
   - entity_id:
     - binary_sensor.espresense_kitchen_occupancy
@@ -3250,7 +3214,7 @@
   mode: restart
 - id: '1732870692023'
   alias: Kitchen WLED routine
-  description: ''
+  description: Syncs kitchen WLED main segment when kitchen WLED turns on
   triggers:
   - trigger: state
     entity_id:
@@ -3266,7 +3230,7 @@
   mode: single
 - id: '1733873712830'
   alias: Alert when no free space
-  description: ''
+  description: Sends Telegram alert when any monitored disk drops below 30% free space
   triggers:
   - trigger: numeric_state
     entity_id:
@@ -3283,7 +3247,7 @@
   mode: single
 - id: '1736891049343'
   alias: Alert when needs to water the plant
-  description: ''
+  description: Alerts via mobile and speakers on weekday evenings when plant soil moisture is below 85%
   triggers:
   - trigger: time
     at: '18:00:00'
@@ -3327,7 +3291,7 @@
   mode: single
 - id: '1745581752788'
   alias: Mode changer - Shabbat alert
-  description: ''
+  description: Sends notification 30 minutes before early Shabbat with option to postpone
   triggers:
   - trigger: time
     at:
@@ -3379,7 +3343,7 @@
   mode: single
 - id: '1745775409890'
   alias: Pikud HaOref - pre-emptive alert
-  description: ''
+  description: Forwards Pikud HaOref update events as Telegram messages and speaker announcements during daytime
   triggers:
   - trigger: event
     event_type: oref_alert_update_event
@@ -3472,7 +3436,7 @@
   mode: single
 - id: '1746014164139'
   alias: AI Song Suggestion
-  description: ''
+  description: Generates AI Hebrew song/playlist recommendation based on context, searches Spotify, notifies via Telegram or mobile
   triggers:
   - trigger: event
     event_type: suggest_a_song
@@ -3556,20 +3520,19 @@
 
         '
   - alias: Request AI recommendation
+    action: script.generate_ai_content
     data:
-      text: '{{ request_ai }}
-
-        '
-      agent_id: conversation.gemini_pro
-    response_variable: ai_song_response
-    action: conversation.process
-    enabled: true
+      prompt_text: '{{ request_ai }}'
+      output_entity: input_text.current_song_reason
+      fallback_response: Unable to generate AI response
+      normalize_ayala: false
+  - alias: Read AI recommendation
+    variables:
+      ai_response: '{{ states(''input_text.current_song_reason'') }}'
   - alias: Validate AI response
     if:
     - condition: template
-      value_template: '{{ ai_song_response.response[''speech''][''plain''][''speech'']
-        == "Sorry, I had a problem getting a response from Google Generative AI."
-        or ai_song_response.response[''response_type''] == ''error'' }}'
+      value_template: '{{ ai_response == "Unable to generate AI response" }}'
     then:
     - alias: Send error notification
       if:
@@ -3581,61 +3544,16 @@
         metadata: {}
         data:
           message_id: '{{ first_message[''chats''][0][''message_id''] }} '
-          message: '{{ai_song_response.response[''speech''][''plain''][''speech''][:20]}}'
-          chat_id: '{{ trigger.event.data.chat_id }}'
-      - action: telegram_bot.edit_message
-        metadata: {}
-        data:
-          message_id: '{{ first_message[''chats''][0][''message_id''] }} '
-          message: מנסה עם מודל אחר
+          message: Unable to get response from AI
           chat_id: '{{ trigger.event.data.chat_id }}'
       else:
       - alias: Send Android notification that error happened
         data:
-          message: '{{ai_song_response.response[''speech''][''plain''][''speech'']}}'
+          message: Unable to get response from AI
         action: notify.mobile_app_aviad_phone
-      - alias: Send Android retry notification
-        data:
-          message: Retrying...
-        action: notify.mobile_app_aviad_phone
-    - alias: Request another AI recommendation
-      data:
-        text: '{{ request_ai }}
-
-          '
-        agent_id: conversation.gemini_flash_pro
-      response_variable: ai_song_response
-      action: conversation.process
-      enabled: true
-    - if:
-      - condition: template
-        value_template: '{{ ai_song_response.response[''speech''][''plain''][''speech'']
-          == "Sorry, I had a problem getting a response from Google Generative AI."
-          or ai_song_response.response[''response_type''] == ''error'' }}'
-      then:
-      - alias: Send error notification
-        if:
-        - condition: trigger
-          id:
-          - telegram
-        then:
-        - action: telegram_bot.edit_message
-          metadata: {}
-          data:
-            message_id: '{{ first_message[''chats''][0][''message_id''] }} '
-            message: '{{ai_song_response.response[''speech''][''plain''][''speech'']}}'
-            chat_id: '{{ trigger.event.data.chat_id }}'
-        else:
-        - alias: Send Android notification that error happened
-          data:
-            message: '{{ai_song_response.response[''speech''][''plain''][''speech'']}}'
-          action: notify.mobile_app_aviad_phone
       - stop: Unable to get response from AI
-    enabled: true
   - alias: Extract song name
     variables:
-      ai_response: '{{ ai_song_response.response[''speech''][''plain''][''speech'']
-        }}'
       song_name: '{{ ai_response | regex_findall_index(''song_name:\s*"(.*?)"'', 0)
         }}
 
@@ -3731,7 +3649,7 @@
   mode: restart
 - id: '1746373161046'
   alias: Kitchen WLED current routine
-  description: ''
+  description: Gradually reduces kitchen WLED brightness when estimated current exceeds threshold
   triggers:
   - trigger: numeric_state
     entity_id:
@@ -3792,7 +3710,7 @@
   mode: single
 - id: '1746558165256'
   alias: Play song from callback
-  description: ''
+  description: Plays AI-suggested song on Sonos when home during daytime, or opens Spotify on phone otherwise
   triggers:
   - event_type: mobile_app_notification_action
     event_data:
@@ -3889,7 +3807,7 @@
   mode: single
 - id: '1747345676292'
   alias: Reset override school vacation
-  description: ''
+  description: Prompts at 16:00 to turn off school vacation override, auto-disables if not dismissed within 1 hour
   triggers:
   - trigger: time
     at: '16:00:00'
@@ -3939,7 +3857,7 @@
   mode: single
 - id: '1751918356816'
   alias: Alert when vacation mode made a call
-  description: ''
+  description: Sends Telegram notification for each presence simulation entity change during vacation mode
   triggers:
   - trigger: event
     event_type: presence_simulation_change
@@ -3953,7 +3871,7 @@
   mode: single
 - id: '1751918477065'
   alias: Vacation routine
-  description: ''
+  description: Suggests enabling vacation simulation after 48 hours in Away mode, waits until 8am if overnight
   triggers:
   - trigger: state
     entity_id:
@@ -4003,7 +3921,7 @@
   mode: single
 - id: '1753893801326'
   alias: Mamad light motion detection
-  description: ''
+  description: Turns on Mamad shelter light on motion (unless Shabbat), turns off after 2 minutes of no motion
   triggers:
   - entity_id:
     - binary_sensor.mamad_small_socket_light_tnv_h
@@ -4051,7 +3969,7 @@
   mode: restart
 - id: '1757437919222'
   alias: Turn off fans when autumn
-  description: ''
+  description: Turns off bedroom and kids fans at 03:30 from September onward when home
   triggers:
   - trigger: time
     at: 03:30:00
@@ -4152,7 +4070,7 @@
   mode: single
 - id: '1761075745328'
   alias: One time automation - re-enable automation
-  description: ''
+  description: Re-enables kitchen WLED motion sensor at 07:00, then disables itself
   triggers:
   - trigger: time
     at: 07:00:00
@@ -4171,7 +4089,7 @@
   mode: single
 - id: '1761214598805'
   alias: Alert when needs to take medication
-  description: ''
+  description: Sends medication reminder for Ayala at 07:05 and 18:30 via Telegram, auto-disables after end date
   triggers:
   - trigger: time
     at: 07:05:00
@@ -4198,7 +4116,7 @@
   mode: single
 - id: '1761224536536'
   alias: Parking Reminder Notification
-  description: ''
+  description: Sends Telegram reminder to stop Pango when distance from parked car exceeds 2km, then disables itself
   triggers:
   - trigger: state
     entity_id:
@@ -4366,7 +4284,7 @@
       action: automation.turn_on
 - id: '1762417373577'
   alias: 'Alert when qbittorent failures '
-  description: ''
+  description: Sends Telegram alert when qBittorrent has errored torrents, deletes message when resolved
   triggers:
   - trigger: numeric_state
     entity_id:
@@ -4393,8 +4311,7 @@
       message_id: '{{ response.chats[0].message_id }}'
       chat_id: '{{ response.chats[0].chat_id }}'
   mode: single
-- &id001
-  id: '1668943200000'
+- id: '1668943200000'
   alias: Daily Fan Cycle with Self-Disable
   description: Turns fan on at 10:00 and off at 16:00, then disables itself.
   triggers:
@@ -4432,10 +4349,9 @@
           entity_id: automation.daily_fan_cycle_with_self_disable
         action: automation.turn_off
   mode: single
-- *id001
 - id: '1763734617480'
   alias: One time automation - turn off
-  description: ''
+  description: Turns off living room fan at 20:00, then disables itself
   triggers:
   - trigger: time
     at: '20:00:00'
@@ -4727,7 +4643,7 @@
     enabled: true
 - id: '1764711598862'
   alias: Clean carpet sentence
-  description: ''
+  description: Triggers carpet cleaning script when Hebrew voice command is spoken
   triggers:
   - trigger: conversation
     command: נקה את השטיח
@@ -4741,7 +4657,7 @@
   mode: single
 - id: '1767351538479'
   alias: Telegram Parasha Image Generator
-  description: ''
+  description: Generates AI art of the weekly Torah portion and sends via Telegram on /parasha command
   triggers:
   - event_type: telegram_command
     event_data:
@@ -4770,7 +4686,7 @@
       - '{{ trigger.event.data.chat_id }}'
 - id: '1768557711592'
   alias: Mashov - homework, grades and behaviour
-  description: ''
+  description: Sends daily Mashov report with homework, behavior, and grades via Telegram on weekday afternoons
   triggers:
   - alias: Daily schedule - Sun -> Thu
     at: '16:30:00'
@@ -4860,7 +4776,7 @@
       ') }}\n"
 - id: '1769771627307'
   alias: Shabbat 1.3 - Alert when Ezra time
-  description: ''
+  description: Announces Ezra pickup reminder 10 minutes before scheduled time on Shabbat, then disables itself
   triggers:
   - at:
       entity_id: input_datetime.ezra_isufim
