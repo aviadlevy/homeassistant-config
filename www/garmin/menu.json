@@ -1,0 +1,207 @@
+{
+  "$schema": "https://raw.githubusercontent.com/house-of-abbey/GarminHomeAssistant/main/config.schema.json",
+  "title": "My Home",
+  "items": [
+    {
+      "name": "Quick Actions",
+      "type": "group",
+      "items": [
+        {
+          "name": "Lights Out",
+          "entity": "scene.lights_out",
+          "type": "tap",
+          "tap_action": {
+            "action": "scene.turn_on"
+          }
+        },
+        {
+          "name": "Aviad",
+          "type": "info",
+          "content": "{% set p_status = states('person.aviad') %}{% set room = states('sensor.aviad_phone_ibeacon') %}{% if p_status == 'home' and room != 'not_home' %}📍 {{ room | replace('_', ' ') | title }}{% elif p_status == 'home' %}🏠 Home{% elif p_status == 'not_home' %}📍 Away{% else %}{{ p_status }}{% endif %}"
+        },
+        {
+          "name": "Noga",
+          "type": "info",
+          "content": "{% set status = states('person.noga') %}{% if status == 'home' %}🏠 Home{% elif status == 'not_home' %}📍 Away{% else %}{{ status }}{% endif %}"
+        }
+      ]
+    },
+    {
+      "name": "Living Room",
+      "type": "group",
+      "items": [
+        {
+          "name": "Main Lights",
+          "entity": "light.living_room_lights",
+          "type": "toggle"
+        },
+        {
+          "name": "Fan",
+          "entity": "fan.living_room_fan",
+          "type": "toggle"
+        },
+        {
+          "name": "Entrance Bulb",
+          "entity": "light.entrance_bulb",
+          "type": "toggle"
+        },
+        {
+          "name": "TV Backlight",
+          "entity": "light.wled_backlight_tv",
+          "type": "toggle"
+        },
+        {
+          "name": "Temperature",
+          "type": "info",
+          "content": "🌡️ {{ '%.1f' | format(states('sensor.living_room_temperature') | float) }} °C"
+        },
+        {
+          "name": "Occupancy",
+          "type": "info",
+          "content": "{{ '🚶 Present' if is_state('binary_sensor.espresense_living_room_occupancy', 'on') else '🛋️ Clear' }}"
+        }
+      ]
+    },
+    {
+      "name": "Kitchen",
+      "type": "group",
+      "items": [
+        {
+          "name": "Kitchen Main",
+          "entity": "light.kitchen_switch",
+          "type": "toggle"
+        },
+        {
+          "name": "Kitchen LEDs",
+          "entity": "light.wled_kitchen",
+          "type": "toggle"
+        },
+        {
+          "name": "Occupancy",
+          "type": "info",
+          "content": "{{ '🚶 Movement' if is_state('binary_sensor.espresense_kitchen_occupancy', 'on') else '☕ Clear' }}"
+        }
+      ]
+    },
+    {
+      "name": "Bedroom",
+      "type": "group",
+      "items": [
+        {
+          "name": "Main Light",
+          "entity": "light.bedroom_light",
+          "type": "toggle"
+        },
+        {
+          "name": "Fan",
+          "entity": "fan.bedroom_fan",
+          "type": "toggle"
+        },
+        {
+          "name": "Closet Light",
+          "entity": "light.closet_bulb",
+          "type": "toggle"
+        },
+        {
+          "name": "Temperature",
+          "type": "info",
+          "content": "🌡️ {{ '%.1f' | format(states('sensor.bedroom_temperature') | float) }} °C"
+        },
+        {
+          "name": "Bed LED Strip",
+          "entity": "light.bed_led_strip",
+          "type": "toggle"
+        }
+      ]
+    },
+    {
+      "name": "Kids Room",
+      "type": "group",
+      "items": [
+        {
+          "name": "Main Light",
+          "entity": "light.kids_light",
+          "type": "toggle"
+        },
+        {
+          "name": "Fan",
+          "entity": "fan.kids_fan",
+          "type": "toggle"
+        },
+        {
+          "name": "Temperature",
+          "type": "info",
+          "content": "🌡️ {{ '%.1f' | format(states('sensor.kids_temperature') | float) }} °C"
+        },
+        {
+          "name": "AC Toggle",
+          "entity": "climate.kids_bedroom",
+          "type": "toggle"
+        }
+      ]
+    },
+    {
+      "name": "Bathrooms",
+      "type": "group",
+      "items": [
+        {
+          "name": "Main Bath Light",
+          "entity": "light.bathroom_bulb",
+          "type": "toggle"
+        },
+        {
+          "name": "Parents Bath Main",
+          "entity": "light.parents_bathroom_lights",
+          "type": "toggle"
+        },
+        {
+          "name": "Water Heater",
+          "entity": "switch.switcher_home",
+          "type": "toggle"
+        },
+        {
+          "name": "Heater Time",
+          "type": "info",
+          "content": "⏳ {{ states('sensor.switcher_home_remaining_time') }}"
+        }
+      ]
+    },
+    {
+      "name": "Office",
+      "type": "group",
+      "items": [
+        {
+          "name": "Main Light",
+          "entity": "light.office_light",
+          "type": "toggle"
+        },
+        {
+          "name": "Fan",
+          "entity": "fan.office_fan",
+          "type": "toggle"
+        },
+        {
+          "name": "Occupancy",
+          "type": "info",
+          "content": "{{ '💻 Occupied' if is_state('binary_sensor.office_occupancy_sensor_occupancy', 'on') else '🚪 Empty' }}"
+        }
+      ]
+    },
+    {
+      "name": "Balcony",
+      "type": "group",
+      "items": [
+        {
+          "name": "Balcony Light",
+          "entity": "light.balcony_bulb",
+          "type": "toggle"
+        },
+        {
+          "name": "Washing Machine",
+          "type": "info",
+          "content": "{{ '🧺 Working' if is_state('binary_sensor.washing_machine_working', 'on') else '✅ Idle' }}"
+        }
+      ]
+    }
+  ]
+}

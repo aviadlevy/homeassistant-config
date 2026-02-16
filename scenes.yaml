@@ -1,20 +1,17 @@
 - id: lights_out
   name: Lights Out
   entities:
-    light.bathroom_switch:
-      friendly_name: Bathroom Switch
-      state: 'off'
     switch.smart_plug_kids_bedroom:
       friendly_name: Smart Plug Kids Bedroom
       state: 'off'
     light.closet_bulb:
-      friendly_name: Closet Bulb Light
+      friendly_name: Closet Bulb
       state: 'off'
     light.parent_bathroom_bulb:
-      friendly_name: Parent Bathroom Bulb Light
+      friendly_name: Parent Bathroom Bulb
       state: 'off'
     light.kitchen_switch:
-      friendly_name: Kitchen Switch Light
+      friendly_name: Kitchen Switch
       state: 'off'
     fan.bedroom_fan:
       friendly_name: Bedroom Fan
@@ -63,8 +60,6 @@
       state: 'off'
   icon: mdi:lightbulb-group-off-outline
   metadata:
-    light.wled_kitchen:
-      entity_only: true
     fan.bedroom_fan:
       entity_only: true
     fan.kids_fan:
@@ -93,14 +88,13 @@
       entity_only: true
     fan.living_room_fan:
       entity_only: true
+    light.wled_kitchen:
+      entity_only: true
 - id: shabbat_sunset
   name: Shabbat 0 Sunset
   entities:
     light.bathroom_bulb:
       friendly_name: Bathroom Bulb
-      state: 'on'
-    light.bathroom_switch:
-      friendly_name: Bathroom Switch
       state: 'on'
     light.kitchen_switch:
       friendly_name: Kitchen Switch Light
@@ -119,9 +113,6 @@
       state: 'off'
     light.closet_bulb:
       friendly_name: Closet Bulb Light
-      state: 'on'
-    light.closet_switch:
-      friendly_name: Closet Switch
       state: 'on'
     light.living_room_door_large:
       friendly_name: Living Room Door Large
@@ -196,9 +187,6 @@
       state: 'on'
     light.bathroom_bulb:
       friendly_name: Bathroom Bulb
-      state: 'on'
-    light.bathroom_switch:
-      friendly_name: Bathroom Switch
       state: 'on'
     switch.smart_plug_kids_bedroom:
       friendly_name: Smart Plug Kids Bedroom
@@ -342,9 +330,6 @@
     light.closet_bulb:
       friendly_name: Closet Bulb Light
       state: 'on'
-    light.closet_switch:
-      friendly_name: Closet Switch
-      state: 'on'
     light.living_room_window_small:
       friendly_name: Living Room Window Small
       state: 'on'
@@ -400,17 +385,11 @@
     light.bathroom_bulb:
       friendly_name: Bathroom Bulb
       state: 'on'
-    light.bathroom_switch:
-      friendly_name: Bathroom Switch
-      state: 'on'
     light.parent_bathroom_bulb:
       friendly_name: Parent Bathroom Bulb Light
       state: 'on'
     light.closet_bulb:
       friendly_name: Closet Bulb Light
-      state: 'on'
-    light.closet_switch:
-      friendly_name: Closet Switch
       state: 'on'
     light.bed_led_strip:
       icon: mdi:led-strip-variant

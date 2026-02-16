@@ -19,10 +19,6 @@ tts: !include tts.yaml
 mqtt: !include mqtt.yaml
 emulated_hue: !include emulated_hue.yaml
 
-duckdns:
-  domain: aviadlevy
-  access_token: !secret duckdns_token
-
 logger:
   default: warning
 

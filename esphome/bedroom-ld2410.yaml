@@ -23,9 +23,9 @@ wifi:
   fast_connect: true
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Bedroom-Occupancy"
-    password: !secret wifi_fallback_password
+  #ap:
+    #ssid: "Bedroom-Occupancy"
+    #password: !secret wifi_fallback_password
 
 esp32_ble_tracker:
   scan_parameters:

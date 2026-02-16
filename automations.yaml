@@ -263,172 +263,6 @@
         action: input_boolean.turn_off
     default: []
   mode: single
-- id: shabbat_0
-  alias: Shabbat 0 - shabbat entrance routine
-  description: On mode change to shabbat mode, activate the scene and notify
-  triggers:
-  - entity_id: input_select.mode
-    to: Shabbat
-    trigger: state
-  conditions: []
-  actions:
-  - variables:
-      shabbat: "{% if states('sensor.jewish_calendar_holiday') == 'עיוה\"כ' %}\nיום
-        הכיפורים\n{% elif states('sensor.jewish_calendar_holiday') == \"הושענא רבה\"
-        %} \nשמחת תורה\n{% elif state_attr('sensor.jewish_calendar_holiday', 'type')
-        == 'EREV_YOM_TOV' %}\n{{ states('sensor.jewish_calendar_holiday') | replace('ערב
-        ', '') }}\n{% else %}\nשבת\n{% endif %}\n"
-  - data:
-      message: רוטינות {{ shabbat }} החלה
-      data:
-        tag: shabbat-mode
-    action: notify.mobile_app_aviad_phone
-    enabled: true
-  - metadata: {}
-    data:
-      addon: d5369777_music_assistant
-    action: hassio.addon_stop
-    enabled: true
-  - data: {}
-    target:
-      entity_id: scene.shabbat_0_sunset
-    enabled: true
-    action: scene.turn_on
-  - data: {}
-    target:
-      entity_id:
-      - media_player.mitv
-      - media_player.mitv_adb
-    enabled: true
-    action: media_player.turn_off
-  - data: {}
-    action: script.set_up_sonos_group
-    enabled: true
-  - if:
-    - condition: template
-      value_template: '{{ shabbat == ''שבת'' }}'
-    then:
-    - data:
-        message: שבת נכנסת! השבת נקרא את פרשת...
-        chime_path: choir
-        cache: true
-        language: iw
-        join_players: true
-      target:
-        entity_id:
-        - media_player.sonos_kids_bedroom
-        - media_player.sonos_kitchen
-        - media_player.sonos_living_room
-        - media_player.bedroom_echo_dot
-      action: chime_tts.say
-    - data:
-        message: '{% if states(''sensor.jewish_calendar_parshat_hashavua'') != ''none''
-          %} {{ states(''sensor.jewish_calendar_parshat_hashavua'') }} {% else %}
-          {{ states(''sensor.jewish_calendar_holiday'') }} {% endif %}
-
-          '
-        chime_path: classical
-        tts_platform: google_translate
-        language: iw
-        join_players: true
-      target:
-        entity_id:
-        - media_player.sonos_kids_bedroom
-        - media_player.sonos_kitchen
-        - media_player.sonos_living_room
-        - media_player.bedroom_echo_dot
-      action: chime_tts.say
-    else:
-    - data:
-        message: '{{ shabbat }} נכנס
-
-          '
-        chime_path: choir
-        cache: true
-        language: iw
-        join_players: true
-      target:
-        entity_id:
-        - media_player.sonos_kids_bedroom
-        - media_player.sonos_kitchen
-        - media_player.sonos_living_room
-        - media_player.bedroom_echo_dot
-      action: chime_tts.say
-  - data:
-      message: 'ב{{ shabbat }} {% if states(''input_boolean.guests_shabbat_dinner'')
-        == ''on''
-
-        %}יש{% else %}אין{% endif %} אורחים! לא לשכוח לכבות את האור במקרר!'
-      cache: true
-      tts_platform: google_translate
-      end_chime_path: fanfare
-      language: iw
-      join_players: true
-    target:
-      entity_id:
-      - media_player.sonos_kids_bedroom
-      - media_player.sonos_kitchen
-      - media_player.sonos_living_room
-      - media_player.bedroom_echo_dot
-    action: chime_tts.say
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 1
-      milliseconds: 0
-  - wait_for_trigger:
-    - entity_id:
-      - media_player.sonos_living_room
-      to: paused
-      trigger: state
-    timeout:
-      hours: 0
-      minutes: 0
-      seconds: 5
-      milliseconds: 0
-  - action: script.set_up_sonos_group_music_casting
-    metadata: {}
-    data: {}
-  - if:
-    - condition: template
-      value_template: '{{ shabbat == ''שבת'' }}'
-    then:
-    - action: script.get_random_song_from_playlist
-      metadata: {}
-      data:
-        playlist_id: 07c13wipxpcwEl7eMRJRjk
-    else:
-    - action: spotifyplus.search_tracks
-      metadata: {}
-      data:
-        entity_id: media_player.spotifyplus_aviad
-        criteria: '{{ shabbat }} חסידי'
-        limit: 1
-      response_variable: song
-    - alias: Play song on speaker
-      target:
-        entity_id:
-        - media_player.sonos_living_room
-      data:
-        media:
-          media_content_id: '{{ song[''result''][''items''][0][''uri''] }}'
-          media_content_type: music
-          metadata: {}
-      action: media_player.play_media
-      enabled: true
-  - wait_for_trigger:
-    - entity_id:
-      - media_player.sonos_living_room
-      to: playing
-      trigger: state
-  - wait_for_trigger:
-    - entity_id:
-      - media_player.sonos_living_room
-      trigger: state
-      from: playing
-  - data: {}
-    action: script.set_up_sonos_group
-    enabled: true
 - id: mode_changer_away
   alias: Mode changer - Away
   description: Turns Away Mode ON/OFF depending on existing mode
@@ -548,6 +382,11 @@
       entity_id: scene.lights_out
     metadata: {}
     action: scene.turn_on
+    data: {}
+  - action: climate.turn_off
+    metadata: {}
+    target:
+      entity_id: climate.kids_bedroom
     data: {}
   - if:
     - condition: state
@@ -1214,6 +1053,10 @@
           - condition: numeric_state
             entity_id: sensor.pirateweather_cloud_coverage
             above: 60
+          - condition: numeric_state
+            entity_id: cover.switcher_runner
+            attribute: current_position
+            below: 20
         then:
         - target:
             entity_id: scene.shabbat_3_morning_cloudy
@@ -1237,6 +1080,10 @@
           - condition: numeric_state
             entity_id: sensor.pirateweather_cloud_coverage
             above: 60
+          - condition: numeric_state
+            entity_id: cover.switcher_runner
+            attribute: current_position
+            below: 20
         then:
         - target:
             entity_id: scene.shabbat_3_morning_cloudy
@@ -1679,7 +1526,7 @@
     trigger: time
     id: weekday
   - trigger: time
-    at: '12:00:00'
+    at: '11:30:00'
     id: Friday
   conditions:
   - condition: not
@@ -2054,20 +1901,24 @@
 - id: night_env_routine_shutter
   alias: Night environment routine - shutter
   description: ''
-  trigger:
-  - platform: time
-    at: '22:30:00'
-  condition:
+  triggers:
+  - at: '22:30:00'
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_select.mode
     state: Home
-  action:
-  - service: cover.set_cover_position
-    target:
+  - condition: numeric_state
+    entity_id: cover.switcher_runner
+    above: 17
+    attribute: current_position
+  actions:
+  - target:
       entity_id:
       - cover.switcher_runner
     data:
       position: 17
+    action: cover.set_cover_position
   mode: single
 - id: alert_sonos_roam_low_battery
   alias: Alert on low Sonos Roam battery
@@ -2334,11 +2185,19 @@
           data:
             inline_keyboard: Suggest a song:/suggest_song
         action: notify.home_assistant_telegram
-      - stop: Unable to get response from AI
+      - variables:
+          ai_response: 'בוקר טוב משפחת לוי! שיהיה לכם יום נעים מלא בחוויות טובות
+
+            '
+      else:
+      - variables:
+          ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
+            }}'
     enabled: true
-  - variables:
-      ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
-        }}'
+    else:
+    - variables:
+        ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
+          }}'
   - data:
       data:
         inline_keyboard: Suggest a song:/suggest_song
@@ -2728,7 +2587,6 @@
       update_entities:
       - update.adaptive_lighting_update
       - update.adguard_home_update
-      - update.bathroom_bulb_firmware
       - update.bed_motion_sensor_firmware
       - update.bedroom_temperature_sensor_firmware
       - update.card_mod_update
@@ -2740,10 +2598,8 @@
       - update.formula_one_card_update
       - update.hacs_update
       - update.home_assistant_core_update
-      - update.home_assistant_google_drive_backup_update
       - update.home_assistant_operating_system_update
       - update.home_assistant_supervisor_update
-      - update.hyperion_ng_update
       - update.israel_meteorological_service_sensor_update
       - update.kitchen_motion_sensor_firmware
       - update.kitchen_switch_firmware
@@ -2752,13 +2608,10 @@
       - update.living_room_temperature_sensor_firmware
       - update.living_room_window_large_firmware
       - update.living_room_window_small_firmware
-      - update.local_tuya_update
       - update.mini_graph_card_update
       - update.mosquitto_broker_update
       - update.mushroom_update
-      - update.nginx_home_assistant_ssl_proxy_update
       - update.oref_alert_update
-      - update.parent_bathroom_bulb_firmware
       - update.pirate_weather_update
       - update.qbittorrent_update
       - update.smart_plug_kids_bedroom_firmware
@@ -2768,28 +2621,32 @@
       - update.wled_backlight_tv_firmware
       - update.xiaomi_vacuum_map_card_update
       - update.average_sensor_update
-      - update.balcony_bulb_firmware
-      - update.closet_bulb_firmware
       - update.israel_electric_corporation_iec_update
       - update.alexa_media_player_update
       - update.apexcharts_card_update
-      - update.bazarr_update
-      - update.prowlarr_update
-      - update.radarr_update
       - update.raspberry_pi_gpio_update
-      - update.sonarr_update
       - update.tailscale_update
       - update.advanced_ssh_web_terminal_update
-      - update.hass_agent_update
       - update.bedroom_occupancy_firmware
-      - update.music_assistant_update
       - update.city_mind_water_meter_update
-      - update.mini_pc_fingerbot_firmware
       - update.spook_your_homie_update
       - update.firemote_card_update
       - update.file_editor_update
       - update.spotifyplus_update
       - update.wled_kitchen_firmware
+      - update.balcony_bulbb_qvshkhh
+      - update.bathroom_bulb_qvshkhh
+      - update.closet_bulb_qvshkhh
+      - update.config_template_card_update
+      - update.kids_temperature_sensor_firmware
+      - update.mashov_update
+      - update.mini_pc_fingerbot_qvshkhh
+      - update.tuya_local_update
+      - update.nginx_proxy_manager_update
+      - update.music_assistant_server_update
+      - update.parent_bathroom_bulb_qvshkhh
+      - update.plant_soil_tester_qvshkhh
+      - update.npm_switches_update
       mobile_app_device: 4214920656084e3e0376f9a6c7b2eb48
       reminder_hours: ''
       only_after: 08:00:00
@@ -2841,19 +2698,15 @@
       id:
       - 'off'
     then:
-    - metadata: {}
+    - action: alexa_devices.send_text_command
       data:
-        volume_level: 0.25
-      target:
-        entity_id: media_player.bedroom_echo_dot
-      action: media_player.volume_set
+        device_id: c34d2d172af44898c854fa792f0239e7
+        text_command: Set volume to 3
     else:
-    - metadata: {}
+    - action: alexa_devices.send_text_command
       data:
-        volume_level: 1
-      target:
-        entity_id: media_player.bedroom_echo_dot
-      action: media_player.volume_set
+        device_id: c34d2d172af44898c854fa792f0239e7
+        text_command: Set volume to max
     - target:
         entity_id: media_player.mibox
       data:
@@ -2950,6 +2803,8 @@
   - at: input_datetime.shabbat_morning_lights_on
     trigger: time
   - trigger: time
+    at: '14:00:00'
+  - trigger: time
     at: '16:00:00'
   conditions:
   - condition: state
@@ -2957,14 +2812,14 @@
     state: Shabbat
   actions:
   - repeat:
-      count: 2
+      count: 3
       sequence:
       - metadata: {}
         data: {}
         action: script.echo_say_the_time
       - delay:
           hours: 0
-          minutes: 10
+          minutes: 15
           seconds: 0
           milliseconds: 0
   mode: single
@@ -3113,9 +2968,12 @@
       - media_player.sonos_kitchen
       - media_player.sonos_living_room
     action: chime_tts.say
-  - data:
-      message: 'Tzet HaTzom '
-    action: notify.alexa_media_bedroom_echo_dot
+  - action: notify.send_message
+    data:
+      message: Tzet ha tzom
+    target:
+      entity_id:
+      - notify.bedroom_echo_dot_announce
   - if:
     - condition: state
       entity_id: person.aviad
@@ -3216,9 +3074,14 @@
   triggers:
   - entity_id:
     - binary_sensor.mini_pc
-    to: 'off'
+    to:
+    - 'off'
     trigger: state
     id: minipc
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   - trigger: homeassistant
     event: start
   conditions: []
@@ -3718,7 +3581,7 @@
         metadata: {}
         data:
           message_id: '{{ first_message[''chats''][0][''message_id''] }} '
-          message: '{{ai_song_response.response[''speech''][''plain''][''speech'']}}'
+          message: '{{ai_song_response.response[''speech''][''plain''][''speech''][:20]}}'
           chat_id: '{{ trigger.event.data.chat_id }}'
       - action: telegram_bot.edit_message
         metadata: {}
@@ -4210,19 +4073,11 @@
 - id: '1758552160635'
   alias: טעינת טלפון אוטומטית
   description: מדליק/מכבה מטען לפי אחוזי סוללה
-  triggers:
-  - entity_id: sensor.aviad_phone_battery_level
-    below: 30
-    id: 'on'
-    trigger: numeric_state
-  - entity_id: sensor.aviad_phone_battery_level
-    above: 80
-    id: 'off'
-    trigger: numeric_state
+  triggers: []
   conditions: []
   actions:
   - target:
-      entity_id: switch.smart_plug_il
+      entity_id: switch.nexus_charger
     action: switch.turn_{{ trigger.id }}
   mode: single
 - id: '1760987889728'
@@ -4234,10 +4089,13 @@
     trigger: time
     weekday:
     - sun
-    - mon
     - tue
     - wed
     - thu
+  - at: '13:05:00'
+    trigger: time
+    weekday:
+    - mon
   - at: '12:00:00'
     id: friday_run
     trigger: time
@@ -4246,72 +4104,48 @@
   conditions: []
   actions:
   - variables:
-      timetable_entity: sensor.mashov_yyr_lvy_g4_timetable
-      weekly_plan_entity: sensor.mashov_yyr_lvy_g4_weekly_plan
-      holiday_entity: sensor.mashov_holidays
-      include_weekly_plan: true
-  - variables:
-      target_timestamp: "{% if trigger.id == 'friday_run' %}\n  {# Friday run: target
-        is Sunday (add 2 days = 172800 seconds) #}\n  {{ as_timestamp(now()) + 172800
-        }}\n{% else %}\n  {# Daily run: target is Tomorrow (add 1 day = 86400 seconds)
-        #}\n  {{ as_timestamp(now()) + 86400 }}\n{% endif %}"
-      tomorrow_date_iso: '{{ target_timestamp | timestamp_custom(''%Y-%m-%d'') }}'
-      day_of_week: '{{ target_timestamp | timestamp_custom(''%w'') | int }}'
-      tomorrow_day_mashov: '{{ day_of_week + 1 }}'
-  - variables:
-      tomorrow_lessons: "{% set items = state_attr(timetable_entity,'Items') or state_attr(timetable_entity,'items')
-        or [] %} {% set ns = namespace(out=[], checked=0, matched=0) %} {% for it
-        in items %}\n  {% if 'timeTable' in it and 'day' in it['timeTable'] %}\n    {%
-        set ns.checked = ns.checked + 1 %}\n    {% set tt = it['timeTable'] %}\n    {%
-        if tt.day | int == tomorrow_day_mashov %}\n      {% set ns.matched = ns.matched
-        + 1 %}\n      {% set gd = it.get('groupDetails') %}\n      {% set subject
-        = gd.subjectName if gd and gd.subjectName is defined else (gd.groupName if
-        gd and gd.groupName is defined else 'מקצוע לא ידוע') %}\n      {% set teachers
-        = it.get('groupTeachers', []) %}\n      {% set teacher = teachers[0].teacherName
-        if teachers|length > 0 and teachers[0].teacherName is defined else 'מורה'
-        %}\n      {% set item = dict(lesson=tt.lesson, groupId=tt.groupId, subject=subject,
-        teacher=teacher, _checked=ns.checked, _matched=ns.matched) %}\n      {% set
-        ns.out = ns.out + [item] %}\n    {% endif %}\n  {% endif %}\n{% endfor %}
-        {{ ns.out }}"
-  - variables:
-      adjusted_lessons: '{% set ns = namespace(adjusted_lessons=[]) %}{% for l in
-        tomorrow_lessons %} {% set new_subject = l.subject %} {% if day_of_week ==
-        1 and l.subject == ''הלכה'' %} {% set new_subject = ''מדעים'' %} {% elif day_of_week
-        == 1 and l.subject == ''מתמטיקה'' %} {% set new_subject = ''גיאומטריה'' %}
-        {% elif day_of_week == 2 and l.subject == ''מדעים'' and loop.index0 == 0 %}
-        {% set new_subject = ''הלכה'' %} {% endif %} {% set new_lesson = { ''lesson'':
-        l.lesson, ''groupId'': l.groupId, ''subject'': new_subject, ''teacher'': l.teacher
-        } %} {% set ns.adjusted_lessons = ns.adjusted_lessons + [new_lesson] %} {%
-        endfor %}{{ ns.adjusted_lessons }}'
-  - variables:
-      student_name: "{% set raw = state_attr(timetable_entity, 'Student name')\n    or
-        state_attr(timetable_entity, 'student_name')\n    or state_attr(timetable_entity,
-        'full_name')\n    or state_attr(timetable_entity, 'name')\n    or state_attr(timetable_entity,
-        'friendly_name')\n    or 'תלמיד/ה' %}\n{{ (raw | string).split('(')[0].strip()
-        }}"
-  - variables:
-      speech_text: "{% set base_lessons = adjusted_lessons | sort(attribute='lesson')
-        %} {% set plans = state_attr(weekly_plan_entity,'Items') or state_attr(weekly_plan_entity,'items')
-        or [] %} {% set plans_today = [] %} {% if include_weekly_plan and plans %}\n
-        \ {% set plans_today = plans\n      | selectattr('lesson_date','defined')\n
-        \     | selectattr('plan','defined')\n      | selectattr('lesson_date', 'search',
-        '^' ~ tomorrow_date_iso)\n      | list %}\n{% endif %} {% if base_lessons
-        | length > 0 %}\n  {% set header = 'שלום ' ~ student_name ~ ', אנא לסדר תיק
-        למחר. המקצועות למחר: ' %}\n  {% set ns2 = namespace(parts=[], seen=[]) %}\n
-        \ {% for les in base_lessons %}\n    {% set subj = les.subject %}\n    {%
-        set lesson_num = les.lesson %}\n    {% if subj not in ns2.seen %}\n      {%
-        set ns2.seen = ns2.seen + [subj] %}\n      {% set gid = les.groupId %}\n      {%
-        set ns_inner = namespace(plan_text='') %}\n      {% for p in plans_today %}\n
-        \       {% set p_gid = p.get('group_id', p.get('groupId')) %}\n        {%
-        set p_plan = p.get('plan', '') %}\n        {% if p_gid == gid and p_plan %}\n
-        \         {% set ns_inner.plan_text = p_plan | trim %}\n        {% endif %}\n
-        \     {% endfor %}\n      \n      {# FIX: Separate logic to avoid TemplateSyntaxError
-        #}\n      {% set plan_suffix = '' %}\n      {% if ns_inner.plan_text %}\n
-        \       {% set plan_suffix = '. תוכנית: ' ~ ns_inner.plan_text %}\n      {%
-        endif %}\n      {% set full = ' ' ~ subj ~ plan_suffix %}\n      \n      {%
-        set ns2.parts = ns2.parts + [full] %}\n    {% endif %}\n  {% endfor %}\n  {{
-        header ~ (ns2.parts | join(', ')) ~ '.' }}\n{% else %}\n  {{ 'שלום ' ~ student_name
-        ~ '. אין פרטי שיעורים זמינים למחר.' }}\n{% endif %}"
+      speech_text: "\n{# HA weekday: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+        #} {% set current_weekday_ha = now().weekday() %}\n{# \n  Conditional Offset:\n
+        \ - If it's Friday (4), offset by 2 days (to Sunday, HA 6).\n  - Otherwise,
+        offset by 1 day (to the next day).\n#} {% set days_offset = \n  2 if current_weekday_ha
+        == 4 \n  else 1 \n%}\n{# Calculate the target weekday in HA format (0=Mon
+        to 6=Sun) #} {% set target_weekday_ha = (current_weekday_ha + days_offset)
+        % 7 %} \n{# \n  Convert HA weekday (0=Mon to 6=Sun) to Mashov Day (1=Sun to
+        7=Sat).\n#} {% set target_day_mashov = ((target_weekday_ha + 1) % 7) + 1 %}\n{#
+        START OF ORIGINAL LESSON PROCESSING LOGIC #} {% set lessons = state_attr('sensor.mashov_yyr_lvy_g4_timetable',
+        'items') %}\n{% set lessons_for_day = lessons\n  | selectattr('timeTable.day',
+        'eq', target_day_mashov)\n  | sort(attribute='timeTable.lesson')\n  | list\n%}\n{%
+        if lessons_for_day | count > 0 %}\n  {# Initialize namespace for building
+        the final list and tracking subject counts #}\n  {% set ns = namespace(\n
+        \   final_subjects=[],\n    subject_counts={}\n  ) %}\n  \n  {# 1. Iterate
+        through the lessons, apply replacements, and ensure uniqueness #}\n  {% for
+        lesson in lessons_for_day %}\n    {% set subject = lesson.groupDetails.subjectName
+        %}\n    {% set current_subject = subject %}\n    \n    {# Increment the counter
+        for this subject name #}\n    {% set count = ns.subject_counts.get(current_subject,
+        0) + 1 %}\n    {% set ns.subject_counts = dict(ns.subject_counts, **{current_subject:
+        count}) %}\n    \n    {# === Replacement Logic for Mashov Day 2 (Monday) ===
+        #}\n    {% if target_day_mashov == 2 %}\n      \n      {# Replace מתמטיקה
+        with גיאומטריה #}\n      {% if current_subject == 'מתמטיקה' %}\n        {%
+        set current_subject = 'גיאומטריה' %}\n      {% endif %}\n    {% endif %}\n\n
+        \   \n    {# 2. Check if the (potentially modified) subject is already in
+        the final list #}\n    {% if current_subject not in ns.final_subjects %}\n
+        \     {% set ns.final_subjects = ns.final_subjects + [current_subject] %}\n
+        \   {% else %}\n      {# \n        CRUCIAL EXCEPTION: If the original name
+        (subject) was modified and the \n        new name (current_subject) is already
+        there, check if the modification \n        was the 'second מדעים -> הלכה'
+        change. If so, and the original 'מדעים' is \n        already in the list,
+        we must include the new name.\n      #}\n      {% if target_day_mashov ==
+        3 and subject == 'מדעים' and current_subject == 'הלכה' %}\n        {# We only
+        add it if 'מדעים' (the first one) is already in the list #}\n        {% if
+        'מדעים' in ns.final_subjects %}\n          {% set ns.final_subjects = ns.final_subjects
+        + [current_subject] %}\n        {% endif %}\n      {% endif %}\n    {% endif
+        %}\n    \n  {% endfor %}\n  \n  {# 3. Output the final comma-separated list
+        with contextual message #}\n  {% if current_weekday_ha == 4 %}\n    היום יום
+        שישי, **מערכת** השיעורים ליום **ראשון** היא: {{ ns.final_subjects | join(',
+        ') }}\n  {% else %}\n    **מערכת** השיעורים ל**מחר** היא: {{ ns.final_subjects
+        | join(', ') }}\n  {% endif %}\n  \n{% else %}\n  {% if current_weekday_ha
+        == 4 %}\n    אין שיעורים ליום ראשון. שבת שלום!\n  {% else %}\n    אין שיעורים
+        למחר. תהנה מההפסקה!\n  {% endif %}\n{% endif %}"
   - action: notify.home_assistant_telegram
     data:
       message: '{{ speech_text }}'
@@ -4397,10 +4231,52 @@
   - entity_id:
     - binary_sensor.aviad_phone_android_auto
     - binary_sensor.noga_phone_android_auto
-    to: 'off'
-    from: 'on'
+    to:
+    - 'off'
+    from:
+    - 'on'
     trigger: state
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
   actions:
+  - action: notify.mobile_app_aviad_phone
+    metadata: {}
+    data:
+      message: request_location_update
+  - action: notify.mobile_app_noga_phone
+    metadata: {}
+    data:
+      message: request_location_update
+  - alias: Wait for update of Aviad location
+    wait_for_trigger:
+    - entity_id: device_tracker.aviad_phone
+      attribute: latitude
+      trigger: state
+    - entity_id: device_tracker.aviad_phone
+      attribute: longitude
+      trigger: state
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 20
+      milliseconds: 0
+    continue_on_timeout: true
+  - alias: 'Wait for update of Noga location '
+    wait_for_trigger:
+    - entity_id: device_tracker.noga_phone
+      attribute: latitude
+      trigger: state
+    - entity_id: device_tracker.noga_phone
+      attribute: longitude
+      trigger: state
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 20
+      milliseconds: 0
+    continue_on_timeout: true
   - variables:
       user_device_map:
         a2963baf7a2144fd8d49218d81151b00:
@@ -4448,25 +4324,573 @@
       entity_id: input_text.park_device_tracker
       value: '{{ device_tracker }}'
     action: input_text.set_value
-  - metadata: {}
-    data:
-      config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+  - action: template.reload
+    metadata: {}
+    data: {}
+  - if:
+    - condition: numeric_state
+      entity_id: number.distance_from_car_to_home
+      below: 0.4
+    then:
+    - metadata: {}
+      data:
+        config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+        target:
+        - '-4738468398'
+        message: You parked at home\. No reminder needed
+        parse_mode: markdownv2
+        title: Hi {{ display_name }}
+      action: telegram_bot.send_message
+    else:
+    - metadata: {}
+      data:
+        config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+        target:
+        - '-4738468398'
+        message: You parked here
+        parse_mode: markdownv2
+        title: Hi {{ display_name }}
+      action: telegram_bot.send_message
+    - metadata: {}
+      data:
+        latitude: '{{ lat }}'
+        longitude: '{{ lon }}'
+        config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+        target:
+        - '-4738468398'
+      action: telegram_bot.send_location
+    - metadata: {}
+      data: {}
       target:
-      - '-4738468398'
-      message: You parked here
-      parse_mode: markdownv2
-      title: Hi {{ display_name }}
-    action: telegram_bot.send_message
-  - metadata: {}
+        entity_id: automation.pango_reminder_notification
+      action: automation.turn_on
+- id: '1762417373577'
+  alias: 'Alert when qbittorent failures '
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.qbittorrent_errored_torrents
+    above: 0
+  conditions: []
+  actions:
+  - action: telegram_bot.send_message
+    metadata: {}
     data:
-      latitude: '{{ lat }}'
-      longitude: '{{ lon }}'
-      config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+      message: 'Qbittorrent has failures '
       target:
-      - '-4738468398'
-    action: telegram_bot.send_location
-  - metadata: {}
+      - '191085358'
+    response_variable: response
+  - wait_for_trigger:
+    - trigger: numeric_state
+      entity_id:
+      - sensor.qbittorrent_errored_torrents
+      below: 1
+    enabled: true
+  - action: telegram_bot.delete_message
+    metadata: {}
+    data:
+      message_id: '{{ response.chats[0].message_id }}'
+      chat_id: '{{ response.chats[0].chat_id }}'
+  mode: single
+- &id001
+  id: '1668943200000'
+  alias: Daily Fan Cycle with Self-Disable
+  description: Turns fan on at 10:00 and off at 16:00, then disables itself.
+  triggers:
+  - at: '10:00:00'
+    id: turn_on
+    trigger: time
+  - at: '16:00:00'
+    id: turn_off_and_disable
+    trigger: time
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: turn_on
+      sequence:
+      - data: {}
+        target:
+          entity_id: fan.living_room_fan
+        action: fan.turn_on
+    - conditions:
+      - condition: trigger
+        id: turn_off_and_disable
+      sequence:
+      - condition: state
+        entity_id: fan.living_room_fan
+        state: 'on'
+      - data: {}
+        target:
+          entity_id: fan.living_room_fan
+        action: fan.turn_off
+      - data:
+          stop_actions: false
+        target:
+          entity_id: automation.daily_fan_cycle_with_self_disable
+        action: automation.turn_off
+  mode: single
+- *id001
+- id: '1763734617480'
+  alias: One time automation - turn off
+  description: ''
+  triggers:
+  - trigger: time
+    at: '20:00:00'
+  conditions: []
+  actions:
+  - action: fan.turn_off
+    metadata: {}
     data: {}
     target:
-      entity_id: automation.pango_reminder_notification
-    action: automation.turn_on
+      entity_id: fan.living_room_fan
+  - data:
+      stop_actions: true
+    enabled: true
+    action: automation.turn_off
+    target:
+      entity_id: automation.one_time_automation_turn_off
+  mode: single
+- id: '1764332587641'
+  alias: Shabbat 0 - shabbat entrance routine
+  description: On mode change to shabbat mode, activate the scene and notify
+  triggers:
+  - entity_id: input_select.mode
+    to: Shabbat
+    trigger: state
+  conditions: []
+  actions:
+  - alias: Set Shabbat/Holiday Variable
+    variables:
+      shabbat: '{% if states(''sensor.jewish_calendar_holiday'') == ''עיוה"כ'' %}
+        יום הכיפורים {% elif states(''sensor.jewish_calendar_holiday'') == "הושענא
+        רבה" %}  שמחת תורה {% elif state_attr(''sensor.jewish_calendar_holiday'',
+        ''type'') == ''EREV_YOM_TOV'' %} {{ states(''sensor.jewish_calendar_holiday'')
+        | replace(''ערב '', '''') }} {% else %} שבת {% endif %}
+
+        '
+  - alias: Notify Mode Change
+    data:
+      message: רוטינות {{ shabbat }} החלה
+      data:
+        tag: shabbat-mode
+    action: notify.mobile_app_aviad_phone
+    enabled: true
+  - alias: Stop Music Assistant Addon
+    metadata: {}
+    data:
+      addon: d5369777_music_assistant
+    action: hassio.addon_stop
+    enabled: true
+  - alias: Activate Sunset Scene
+    data: {}
+    target:
+      entity_id: scene.shabbat_0_sunset
+    enabled: true
+    action: scene.turn_on
+  - alias: Turn Off TV Media Players
+    data: {}
+    target:
+      entity_id:
+      - media_player.mitv
+      - media_player.mitv_adb
+    enabled: true
+    action: media_player.turn_off
+  - alias: Set Up Sonos Speaker Group
+    data: {}
+    action: script.set_up_sonos_group
+    enabled: true
+  - alias: Define AI Request for Shabbat/Holiday Announcement
+    variables:
+      guest_status: '{{ ''יש'' if states(''input_boolean.guests_shabbat_dinner'')
+        == ''on'' else ''אין'' }}'
+      havdalah_time: '{% set dt = states(''sensor.jewish_calendar_upcoming_havdalah'')
+        | as_datetime | as_local %} {% set hour_12 = dt.strftime(''%I'') | int %}
+        {% set minute = dt.minute %} {{ hour_12 }}{% if minute > 0 %} ו{{ minute }}
+        דקות{% endif %}
+
+        '
+      parsha_name: '{{ states("sensor.jewish_calendar_parshat_hashavua") }}'
+      general_instructions: 'Generate text for a notification that will be heard on
+        our house speakers. no emojis. **IMPORTANT: Return ONLY the final message
+        in Hebrew. Do NOT describe your reasoning, plan, or thoughts. No explanations,
+        no preambles. This is a hard requirement.**
+
+        - You are a helpful personal agent that generates text for the Levy family.
+        your answer should always be in Hebrew language. Family members are: Dad,
+        Mom, Yair, Ayala. in Hebrew spelled: אבא, אמא, יאיר, איילה
+
+        - Your answers are helpful, friendly, and insightful.
+
+        - Your message should not be longer than 500 tokens! this is a hard requirement!
+
+        - Your message should be one cohesive, warm, and meaningful announcement.
+
+        '
+      specific_instructions: '- The message is an announcement for the entrance of
+        {{ shabbat }}.
+
+        - Mention the current Jewish Holiday/Shabbat name: {{ shabbat }}.
+
+        - If it is Shabbat (not a holiday), mention the Parshat HaShavua: ''{{ parsha_name
+        }}''. If the parsha is ''none'', mention the holiday name instead.
+
+        - If the current entry is Shabbat ({{ shabbat }} == ''שבת'') AND the parsha
+        name is not ''none'', please add a very short summary (up to 3 sentences)
+        of what the Parasha is about.
+
+        - Announce the Havdalah time for when {{ shabbat }} ends: צאת השבת בשעה {{
+        havdalah_time }}.
+
+        - Remind the family about guests: ב{{ shabbat }} {{ guest_status }} אורחים.
+
+        - Include a reminder to manually turn off the **refrigerator light** before
+        {{ shabbat }} begins.
+
+        - Add a short, meaningful quote or thought related to {{ shabbat }}.
+
+        '
+      ai_request: '{{ general_instructions }}
+
+        {{ specific_instructions }}
+
+        '
+  - alias: Process AI Request (Gemini Pro)
+    metadata: {}
+    data:
+      text: '{{ ai_request }}'
+      agent_id: conversation.gemini_pro
+    response_variable: agent
+    action: conversation.process
+  - alias: Validate AI response and retry (Gemini Flash Pro)
+    if:
+    - condition: template
+      value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry,
+        I had a problem getting a response from Google Generative AI." or agent.response[''response_type'']
+        == ''error'' }}'
+    then:
+    - metadata: {}
+      data:
+        text: '{{ ai_request }}'
+        agent_id: conversation.gemini_flash_pro
+      response_variable: agent
+      action: conversation.process
+    - if:
+      - condition: template
+        value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry,
+          I had a problem getting a response from Google Generative AI." or agent.response[''response_type'']
+          == ''error'' }}'
+      then:
+      - variables:
+          ai_response: '{{ shabbat }} נכנסת! נא לכבות את האור במקרר! צאת {{ shabbat
+            }} ב{{ havdalah_time }}.
+
+            '
+      else:
+      - variables:
+          ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
+            }}'
+    else:
+    - variables:
+        ai_response: '{{ agent.response.speech.plain.speech | replace("אילה", "אַיָּלָה")
+          }}'
+  - action: notify.home_assistant_telegram
+    metadata: {}
+    data:
+      message: '{{ ai_response }}'
+    alias: Send summary to telegram
+  - alias: Announce Shabbat/Holiday Entrance (AI Generated)
+    action: chime_tts.say
+    target:
+      entity_id:
+      - media_player.sonos_kids_bedroom
+      - media_player.sonos_kitchen
+      - media_player.sonos_living_room
+      - media_player.bedroom_echo_dot
+    data:
+      chime_path: choir
+      message: '{{ ai_response }}
+
+        '
+      tts_platform: google_translate
+      language: iw
+      join_players: true
+      end_chime_path: tada
+  - alias: Delay for Media
+    delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - alias: Wait for Sonos Pause (Start of Playback)
+    wait_for_trigger:
+    - entity_id:
+      - media_player.sonos_living_room
+      to: paused
+      trigger: state
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - alias: Set Up Sonos Group for Music Casting
+    action: script.set_up_sonos_group_music_casting
+    metadata: {}
+    data: {}
+  - alias: Select Music for Shabbat or Holiday - Play 2 songs
+    if:
+    - condition: template
+      value_template: '{{ shabbat == ''שבת'' }}'
+    then:
+    - alias: Get Random Song 1 for Shabbat
+      action: script.get_random_song_from_playlist
+      metadata: {}
+      data:
+        playlist_id: 07c13wipxpcwEl7eMRJRjk
+    - alias: Wait for Shabbat Song 1 to finish
+      wait_for_trigger:
+      - entity_id:
+        - media_player.sonos_living_room
+        trigger: state
+        from: playing
+      timeout:
+        hours: 0
+        minutes: 8
+        seconds: 0
+        milliseconds: 0
+    - alias: Get Random Song 2 for Shabbat
+      action: script.get_random_song_from_playlist
+      metadata: {}
+      data:
+        playlist_id: 07c13wipxpcwEl7eMRJRjk
+    else:
+    - alias: Search for Holiday Song 1
+      action: spotifyplus.search_tracks
+      metadata: {}
+      data:
+        entity_id: media_player.spotifyplus_aviad
+        criteria: '{{ shabbat }} חסידי'
+        limit: 1
+      response_variable: song1
+    - alias: Play Holiday Song 1 on Speaker
+      target:
+        entity_id:
+        - media_player.sonos_living_room
+      data:
+        media:
+          media_content_id: '{{ song1[''result''][''items''][0][''uri''] }}'
+          media_content_type: music
+          metadata: {}
+      action: media_player.play_media
+      enabled: true
+    - alias: Wait for Holiday Song 1 to finish
+      wait_for_trigger:
+      - entity_id:
+        - media_player.sonos_living_room
+        trigger: state
+        from: playing
+      timeout:
+        hours: 0
+        minutes: 8
+        seconds: 0
+        milliseconds: 0
+    - alias: Search for Holiday Song 2
+      action: spotifyplus.search_tracks
+      metadata: {}
+      data:
+        entity_id: media_player.spotifyplus_aviad
+        criteria: '{{ shabbat }} לילדים'
+        limit: 1
+      response_variable: song2
+    - alias: Play Holiday Song 2 on Speaker
+      target:
+        entity_id:
+        - media_player.sonos_living_room
+      data:
+        media:
+          media_content_id: '{{ song2[''result''][''items''][0][''uri''] }}'
+          media_content_type: music
+          metadata: {}
+      action: media_player.play_media
+      enabled: true
+  - alias: Wait for Sonos to Stop Playing
+    wait_for_trigger:
+    - entity_id:
+      - media_player.sonos_living_room
+      trigger: state
+      from: playing
+  - alias: Reset Sonos Speaker Group
+    data: {}
+    action: script.set_up_sonos_group
+    enabled: true
+- id: '1764711598862'
+  alias: Clean carpet sentence
+  description: ''
+  triggers:
+  - trigger: conversation
+    command: נקה את השטיח
+  conditions: []
+  actions:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.clean_carpet
+  mode: single
+- id: '1767351538479'
+  alias: Telegram Parasha Image Generator
+  description: ''
+  triggers:
+  - event_type: telegram_command
+    event_data:
+      command: /parasha
+    trigger: event
+  actions:
+  - action: ai_task.generate_image
+    data:
+      instructions: 'An epic, detailed artistic illustration of the main story from
+        the  Torah portion of {{ states(''sensor.jewish_calendar_parshat_hashavua'')
+        }}.
+
+        '
+      task_name: Parasha Image Generator
+      entity_id: ai_task.google_ai_task
+    response_variable: generated_art
+  - action: telegram_bot.send_photo
+    metadata: {}
+    data:
+      verify_ssl: true
+      config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
+      url: '{{ generated_art.url }}'
+      caption: 'Weekly Parasha: {{ states(''sensor.jewish_calendar_parshat_hashavua'')
+        }}'
+      target:
+      - '{{ trigger.event.data.chat_id }}'
+- id: '1768557711592'
+  alias: Mashov - homework, grades and behaviour
+  description: ''
+  triggers:
+  - alias: Daily schedule - Sun -> Thu
+    at: '16:30:00'
+    trigger: time
+    weekday:
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
+  - alias: Daily schedule - Fri
+    at: '12:00:00'
+    trigger: time
+    weekday:
+    - fri
+  conditions:
+  - condition: state
+    entity_id: calendar.mashov_holidays_calendar
+    state:
+    - 'off'
+  actions:
+  - if:
+    - alias: Has data today?
+      condition: template
+      value_template: '{{ has_data_today }}'
+    then:
+    - action: notify.home_assistant_telegram
+      metadata: {}
+      data:
+        message: '{{ announcement_text }}
+
+          '
+    else:
+    - action: notify.home_assistant_telegram
+      metadata: {}
+      data:
+        message: לא דווחו שיעורי בית במשוב היום ל {{ student_name }}
+  mode: restart
+  variables:
+    homework_sensor: sensor.mashov_yyr_lvy_g4_homework
+    behavior_sensor: sensor.mashov_yyr_lvy_g4_behavior
+    media_player: media_player.sonos_living_room
+    max_volume: 1
+    tts_language: iw
+    tts_start_timeout: 10
+    tts_finish_timeout: 120
+    blueprint_version: mashov_daily_homework_announce v1.0.6 (2025-10-18)
+    allow_start: 07:00:00
+    allow_end: '22:00:00'
+    now_time: '{{ now().time() }}'
+    student_name: "{{ state_attr(behavior_sensor,'Student name')\n   or state_attr(homework_sensor,'Student
+      name')\n   or state_attr(behavior_sensor,'student_name')\n   or state_attr(homework_sensor,'student_name')\n
+      \  or 'התלמיד/ה' }}\n"
+    todays_homework: "{% set items = state_attr(homework_sensor,'Items') or state_attr(homework_sensor,'items')
+      or [] %} {% set today = now().date() %} {% set ns = namespace(lines=[]) %} {%
+      for it in items %}\n  {% if it.lesson_date is defined and it.lesson_date %}\n
+      \   {% if as_datetime(it.lesson_date).date() == today %}\n      {% set subj
+      = it.subject_name or it.subject or 'מקצוע' %}\n      {% set hw = (it.homework
+      or it.remark or '') | replace('\\n',' ') %}\n      {% set ns.lines = ns.lines
+      + [subj ~ ': ' ~ hw] %}\n    {% endif %}\n  {% endif %}\n{% endfor %} {{ ns.lines
+      | join(' ; ') }}\n"
+    todays_behavior: "{% set items = state_attr(behavior_sensor,'Items') or state_attr(behavior_sensor,'items')
+      or [] %} {% set today = now().date() %} {% set ns = namespace(lines=[]) %} {%
+      for it in items %}\n  {% if it.lesson_date is defined and it.lesson_date %}\n
+      \   {% if as_datetime(it.lesson_date).date() == today %}\n      {% set subj
+      = it.subject or 'מקצוע' %}\n      {% set tag  = it.achva_name or it.event or
+      'אירוע' %}\n      {% set ns.lines = ns.lines + [subj ~ ': ' ~ tag] %}\n    {%
+      endif %}\n  {% endif %}\n{% endfor %} {{ ns.lines | join(' ; ') }}\n"
+    todays_grades: "{% set items = state_attr('sensor.mashov_yyr_lvy_g4_grades','Items')
+      or state_attr('sensor.mashov_yyr_lvy_g4_grades','items') or [] %} {% set today
+      = now().date() %} {% set ns = namespace(lines=[]) %}\n{% for it in items %}\n
+      \ {% if it.eventDate is defined and it.eventDate %}\n    {% if as_datetime(it.eventDate).date()
+      == today %}\n      {% set subj = it.subjectName or it.subject or 'מקצוע' %}\n
+      \     {% set entry = \"{} ב{} ({}) - {}\".format(it.gradeType, subj, it.gradingEvent,
+      it.rangeGrade) %}\n      {% set ns.lines = ns.lines + [entry] %}\n    {% endif
+      %}\n  {% endif %}\n{% endfor %} {{ ns.lines | join(' ; ') }}\n"
+    has_data_today: '{{ (todays_homework | trim | length > 0) or (todays_behavior
+      | trim | length > 0) or (todays_grades | trim | length > 0) }}
+
+      '
+    announcement_text: "{% set ns = namespace(parts=['שלום ' ~ student_name]) %} {%
+      if todays_behavior | trim | length > 0 %}\n  {% set ns.parts = ns.parts + ['התנהגות
+      היום: ' ~ todays_behavior] %}\n{% endif %} {% if todays_homework | trim | length
+      > 0 %}\n  {% set ns.parts = ns.parts + ['שיעורי בית היום: ' ~ todays_homework]
+      %}\n{% endif %} {% if todays_grades | trim | length > 0 %}\n  {% set ns.parts
+      = ns.parts + ['ציונים: ' ~ todays_grades] %}\n{% endif %} {{ ns.parts | join('.
+      ') }}\n"
+- id: '1769771627307'
+  alias: Shabbat 1.3 - Alert when Ezra time
+  description: ''
+  triggers:
+  - at:
+      entity_id: input_datetime.ezra_isufim
+      offset: -00:10:00
+    trigger: time
+  conditions:
+  - condition: state
+    entity_id: input_select.mode
+    state: Shabbat
+  - condition: time
+    weekday:
+    - sat
+  actions:
+  - data:
+      chime_path: ba_dum_tss
+      cache: true
+      tts_platform: google_translate
+      language: iw
+      join_players: true
+      message: בעוד עשר דקות יהיו איסופים לעזרא
+      volume_level: 0.75
+    target:
+      entity_id:
+      - media_player.sonos_kitchen
+      - media_player.sonos_living_room
+    action: chime_tts.say
+  - action: automation.turn_off
+    metadata: {}
+    target:
+      entity_id: automation.shabbat_1_3_alert_when_ezra_time
+    data:
+      stop_actions: true
+  mode: single

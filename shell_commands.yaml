@@ -1,1 +1,2 @@
 toggle_qbittorrent_speed: curl -X POST http://localhost:8081/api/v2/transfer/toggleSpeedLimitsMode
+jellyfin_scan_lib: !secret jellyfin_scan_lib_cmd

@@ -54,15 +54,17 @@ run_switcher_from_input:
 activate_hyperion:
   alias: Activate Hyperion
   sequence:
-  - service: androidtv.adb_command
-    data:
+  - data:
       command: am start com.abrenoch.hyperiongrabber/com.abrenoch.hyperiongrabber.common.BootActivity
     target:
       entity_id: media_player.mitv_adb
-  - service: switch.turn_on
-    data: {}
+    action: androidtv.adb_command
+  - data: {}
     target:
-      entity_id: switch.hyperion_component_led_device
+      entity_id:
+      - switch.hyperion_ng_tv_component_led_device
+      - switch.first_led_hardware_instance_component_smoothing
+    action: switch.turn_on
   mode: single
   icon: mdi:television
 disable_hyperion:

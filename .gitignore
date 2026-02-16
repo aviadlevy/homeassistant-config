@@ -6,6 +6,9 @@
 !.gitignore
 !*.md
 !esphome
+!www
+!www/garmin
+!www/garmin/*.json
 # Specific script
 !sonarr_mgmt
 !sonarr_mgmt/*
