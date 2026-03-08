@@ -3479,7 +3479,7 @@
     - action: telegram_bot.send_message
       metadata: {}
       data:
-        target:
+        chat_id:
         - '{{ trigger.event.data.chat_id }}'
         message: בקשתך התקבלה. מתייעץ עם AI...
         disable_notification: true
@@ -3631,7 +3631,7 @@
           data:
             url: '{{ song_image }}'
             caption: '{{ song_display }}'
-            target:
+            chat_id:
             - '{{ trigger.event.data.chat_id }}'
             disable_notification: true
           enabled: true
@@ -3642,7 +3642,7 @@
             }}]({{ song_external_url }}){% else %}{{ song_display }}{% endif %}
 
             {{reason}}. תרצה להשמיע אותו?'
-          target:
+          chat_id:
           - '{{ trigger.event.data.chat_id }}'
           inline_keyboard: Play it:/play_it
           disable_notification: true
@@ -4134,7 +4134,7 @@
       title: "You left your parking spot \U0001F697"
       message: Looks like you moved away – don’t forget to stop Pango!
       config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
-      target:
+      chat_id:
       - '-4738468398'
   - target:
       entity_id: automation.pango_reminder_notification
@@ -4253,7 +4253,7 @@
     - metadata: {}
       data:
         config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
-        target:
+        chat_id:
         - '-4738468398'
         message: You parked at home\. No reminder needed
         parse_mode: markdownv2
@@ -4263,7 +4263,7 @@
     - metadata: {}
       data:
         config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
-        target:
+        chat_id:
         - '-4738468398'
         message: You parked here
         parse_mode: markdownv2
@@ -4274,7 +4274,7 @@
         latitude: '{{ lat }}'
         longitude: '{{ lon }}'
         config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
-        target:
+        chat_id:
         - '-4738468398'
       action: telegram_bot.send_location
     - metadata: {}
@@ -4296,7 +4296,7 @@
     metadata: {}
     data:
       message: 'Qbittorrent has failures '
-      target:
+      chat_id:
       - '191085358'
     response_variable: response
   - wait_for_trigger:
@@ -4682,7 +4682,7 @@
       url: '{{ generated_art.url }}'
       caption: 'Weekly Parasha: {{ states(''sensor.jewish_calendar_parshat_hashavua'')
         }}'
-      target:
+      chat_id:
       - '{{ trigger.event.data.chat_id }}'
 - id: '1768557711592'
   alias: Mashov - homework, grades and behaviour
