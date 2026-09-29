@@ -49,12 +49,13 @@
     light.living_room_window_small:
       friendly_name: Living Room Window Small
       state: 'off'
-    light.entrance_bulb:
+    light.entrance_light:
       friendly_name: Entrance Switch
       state: 'off'
     fan.living_room_fan:
-      friendly_name: Living Room Fan
-      state: 'off'
+      friendly_name: Fan
+      supported_features: 48
+      state: unavailable
     light.wled_kitchen:
       friendly_name: WLED Kitchen
       state: 'off'
@@ -84,7 +85,7 @@
       entity_only: true
     light.living_room_window_small:
       entity_only: true
-    light.entrance_bulb:
+    light.entrance_light:
       entity_only: true
     fan.living_room_fan:
       entity_only: true
@@ -94,44 +95,381 @@
   name: Shabbat 0 Sunset
   entities:
     light.bathroom_bulb:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 6493
+      hs_color:
+      - 48.348
+      - 2.014
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      off_with_transition: false
+      off_brightness:
       friendly_name: Bathroom Bulb
+      supported_features: 40
       state: 'on'
     light.kitchen_switch:
-      friendly_name: Kitchen Switch Light
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Kitchen Switch
+      supported_features: 8
       state: 'on'
     light.parent_bathroom_bulb:
-      friendly_name: Parent Bathroom Bulb Light
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 6493
+      hs_color:
+      - 48.348
+      - 2.014
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Parent Bathroom Bulb
+      supported_features: 40
       state: 'on'
     light.bed_led_strip:
+      min_color_temp_kelvin: 2202
+      max_color_temp_kelvin: 4000
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      hs_color:
+      rgb_color:
+      xy_color:
+      off_with_transition: false
+      off_brightness: 102
+      icon: mdi:led-strip-variant
       friendly_name: Bed Led Strip
+      supported_features: 40
       state: 'off'
     light.bedroom_light:
-      friendly_name: Kids Light
+      supported_color_modes:
+      - onoff
+      color_mode:
+      friendly_name: Light
+      supported_features: 0
       state: 'off'
     light.office_light:
-      friendly_name: Office Light
+      supported_color_modes:
+      - onoff
+      color_mode:
+      friendly_name: Light
+      supported_features: 0
       state: 'off'
     light.closet_bulb:
-      friendly_name: Closet Bulb Light
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 6493
+      hs_color:
+      - 48.348
+      - 2.014
+      rgb_color:
+      - 255
+      - 254
+      - 250
+      xy_color:
+      - 0.326
+      - 0.333
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Closet Bulb
+      supported_features: 40
       state: 'on'
     light.living_room_door_large:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      off_with_transition: false
+      off_brightness:
       friendly_name: Living Room Door Large
+      supported_features: 8
       state: 'on'
     light.living_room_door_small:
-      friendly_name: Living Room Door Small Light
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Living Room Door Small
+      supported_features: 8
       state: 'on'
     light.living_room_window_large:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      off_with_transition: false
+      off_brightness:
       friendly_name: Living Room Window Large
+      supported_features: 8
       state: 'on'
     light.living_room_window_small:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      off_with_transition: false
+      off_brightness:
       friendly_name: Living Room Window Small
+      supported_features: 8
       state: 'on'
     light.wled_kitchen:
+      effect_list:
+      - Solid
+      - Blink
+      - Breathe
+      - Wipe
+      - Wipe Random
+      - Random Colors
+      - Sweep
+      - Dynamic
+      - Colorloop
+      - Rainbow
+      - Scan
+      - Scan Dual
+      - Fade
+      - Theater
+      - Theater Rainbow
+      - Running
+      - Saw
+      - Twinkle
+      - Dissolve
+      - Dissolve Rnd
+      - Sparkle
+      - Sparkle Dark
+      - Sparkle+
+      - Strobe
+      - Strobe Rainbow
+      - Strobe Mega
+      - Blink Rainbow
+      - Android
+      - Chase
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Rnd
+      - Rainbow Runner
+      - Colorful
+      - Traffic Light
+      - Sweep Random
+      - Chase 2
+      - Aurora
+      - Stream
+      - Scanner
+      - Lighthouse
+      - Fireworks
+      - Rain
+      - Tetrix
+      - Fire Flicker
+      - Gradient
+      - Loading
+      - Rolling Balls
+      - Fairy
+      - Two Dots
+      - Fairytwinkle
+      - Running Dual
+      - RSVD
+      - Chase 3
+      - Tri Wipe
+      - Tri Fade
+      - Lightning
+      - ICU
+      - Multi Comet
+      - Scanner Dual
+      - Stream 2
+      - Oscillate
+      - Pride 2015
+      - Juggle
+      - Palette
+      - Fire 2012
+      - Colorwaves
+      - Bpm
+      - Fill Noise
+      - Noise 1
+      - Noise 2
+      - Noise 3
+      - Noise 4
+      - Colortwinkles
+      - Lake
+      - Meteor
+      - Meteor Smooth
+      - Railway
+      - Ripple
+      - Twinklefox
+      - Twinklecat
+      - Halloween Eyes
+      - Solid Pattern
+      - Solid Pattern Tri
+      - Spots
+      - Spots Fade
+      - Glitter
+      - Candle
+      - Fireworks Starburst
+      - Fireworks 1D
+      - Bouncing Balls
+      - Sinelon
+      - Sinelon Dual
+      - Sinelon Rainbow
+      - Popcorn
+      - Drip
+      - Plasma
+      - Percent
+      - Ripple Rainbow
+      - Heartbeat
+      - Pacifica
+      - Candle Multi
+      - Solid Glitter
+      - Sunrise
+      - Phased
+      - Twinkleup
+      - Noise Pal
+      - Sine
+      - Phased Noise
+      - Flow
+      - Chunchun
+      - Dancing Shadows
+      - Washing Machine
+      - Rotozoomer
+      - Blends
+      - TV Simulator
+      - Dynamic Smooth
+      - Spaceships
+      - Crazy Bees
+      - Ghost Rider
+      - Blobs
+      - Scrolling Text
+      - Drift Rose
+      - Distortion Waves
+      - Soap
+      - Octopus
+      - Waving Cell
+      - Pixels
+      - Pixelwave
+      - Juggles
+      - Matripix
+      - Gravimeter
+      - Plasmoid
+      - Puddles
+      - Midnoise
+      - Noisemeter
+      - Freqwave
+      - Freqmatrix
+      - GEQ
+      - Waterfall
+      - Freqpixels
+      - RSVD
+      - Noisefire
+      - Puddlepeak
+      - Noisemove
+      - Noise2D
+      - Perlin Move
+      - Ripple Peak
+      - Firenoise
+      - Squared Swirl
+      - RSVD
+      - DNA
+      - Matrix
+      - Metaballs
+      - Freqmap
+      - Gravcenter
+      - Gravcentric
+      - Gravfreq
+      - DJ Light
+      - Funky Plank
+      - RSVD
+      - Pulser
+      - Blurz
+      - Drift
+      - Waverly
+      - Sun Radiation
+      - Colored Bursts
+      - Julia
+      - RSVD
+      - RSVD
+      - RSVD
+      - Game Of Life
+      - Tartan
+      - Polar Lights
+      - Swirl
+      - Lissajous
+      - Frizzles
+      - Plasma Ball
+      - Flow Stripe
+      - Hiphotic
+      - Sindots
+      - DNA Spiral
+      - Black Hole
+      - Wavesins
+      - Rocktaves
+      - Akemi
+      supported_color_modes:
+      - rgb
+      effect:
+      color_mode:
+      brightness:
+      hs_color:
+      rgb_color:
+      xy_color:
       friendly_name: WLED Kitchen
+      supported_features: 36
       state: 'off'
+    light.mamad_small_socket_light:
+      min_color_temp_kelvin: 2700
+      max_color_temp_kelvin: 6500
+      effect_list:
+      - Scene
+      - 'off'
+      supported_color_modes:
+      - color_temp
+      - hs
+      effect: 'off'
+      color_mode: color_temp
+      brightness: 74
+      color_temp_kelvin: 2700
+      hs_color:
+      - 28.395
+      - 65.723
+      rgb_color:
+      - 255
+      - 167
+      - 87
+      xy_color:
+      - 0.525
+      - 0.388
+      friendly_name: Mamad Small Socket Light
+      supported_features: 4
+      state: 'on'
   metadata:
-    light.wled_kitchen:
-      entity_only: true
     light.bathroom_bulb:
       entity_only: true
     light.kitchen_switch:
@@ -142,13 +480,9 @@
       entity_only: true
     light.bedroom_light:
       entity_only: true
-    light.kids_light:
-      entity_only: true
     light.office_light:
       entity_only: true
     light.closet_bulb:
-      entity_only: true
-    light.closet_switch:
       entity_only: true
     light.living_room_door_large:
       entity_only: true
@@ -158,7 +492,9 @@
       entity_only: true
     light.living_room_window_small:
       entity_only: true
-    light.bathroom_switch:
+    light.wled_kitchen:
+      entity_only: true
+    light.mamad_small_socket_light:
       entity_only: true
 - id: shabbat_evening
   name: Shabbat 1 Evening
@@ -255,7 +591,7 @@
       friendly_name: Bedroom Light
       supported_features: 0
       state: 'off'
-    light.entrance_bulb:
+    light.entrance_light:
       supported_color_modes:
       - onoff
       color_mode:
@@ -307,7 +643,7 @@
       entity_only: true
     light.bedroom_light:
       entity_only: true
-    light.entrance_bulb:
+    light.entrance_light:
       entity_only: true
     light.office_light:
       entity_only: true

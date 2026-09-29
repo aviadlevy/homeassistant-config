@@ -111,6 +111,11 @@
           "name": "Bed LED Strip",
           "entity": "light.bed_led_strip",
           "type": "toggle"
+        },
+        {
+          "name": "Occupancy",
+          "type": "info",
+          "content": "{{ '🚶 Present' if is_state('binary_sensor.bedroom_occupancy_sensor_occupancy', 'on') else '🛋️ Clear' }}"
         }
       ]
     },
@@ -132,6 +137,11 @@
           "name": "Temperature",
           "type": "info",
           "content": "🌡️ {{ '%.1f' | format(states('sensor.kids_temperature') | float) }} °C"
+        },
+        {
+          "name": "Occupancy",
+          "type": "info",
+          "content": "{{ '🚶 Present' if is_state('binary_sensor.espresense_kids_bedroom_occupancy', 'on') else '🛋️ Clear' }}"
         },
         {
           "name": "AC Toggle",
@@ -194,6 +204,11 @@
         {
           "name": "Balcony Light",
           "entity": "light.balcony_bulb",
+          "type": "toggle"
+        },
+        {
+          "name": "Extender Switch",
+          "entity": "switch.nexus_charger",
           "type": "toggle"
         },
         {

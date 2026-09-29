@@ -1,5 +1,20 @@
+purge_keep_days: 7
+
 exclude:
+  entities:
+    # ESPresense node connectivity: 99.6% "on" - rows come from attribute churn
+    - binary_sensor.espresense_office
+    - binary_sensor.espresense_bedroom
+    - binary_sensor.espresense_kitchen
+    # only high-churn desktop_levy sensor not plotted on an apexcharts card
+    - sensor.desktop_levy_network_wi_fi
+    # ticks every minute; automation triggers are unaffected by exclusion
+    - sensor.time
   entity_globs:
     - binary_sensor.*_occupancy_sensor_motion
     - binary_sensor.espresense_*_motion
     - sensor.mashov_*_*
+    # ESPresense diagnostics; also catches MAC-named nodes (espresense_54075b_*)
+    - binary_sensor.espresense_*_connectivity
+    - sensor.espresense_*_uptime
+    - sensor.espresense_*_free_mem

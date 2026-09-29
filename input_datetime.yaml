@@ -1,0 +1,26 @@
+
+shabbat_shacharit:
+  name: "Shabbat Shacharit"
+  has_date: false
+  has_time: true
+shabbat_mincha_gedola:
+  name: "Shabbat Mincha Gedola"
+  has_date: false
+  has_time: true
+shabbat_mincha:
+  name: "Shabbat Mincha"
+  has_date: false
+  has_time: true
+shabbat_maariv:
+  name: "Shabbat Maariv (Tzet)"
+  has_date: false
+  has_time: true
+
+regular_mincha:
+  name: "Weekday Mincha"
+  has_date: false
+  has_time: true
+regular_maariv:
+  name: "Weekday Maariv"
+  has_date: false
+  has_time: true

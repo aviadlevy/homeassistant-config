@@ -7,7 +7,7 @@ sensor: !include sensors.yaml
 switch: !include switches.yaml
 group: !include groups.yaml
 zone: !include zones.yaml
-http: !include http.yaml
+#http: !include http.yaml
 climate: !include climates.yaml
 notify: !include notify.yaml
 command_line: !include command_line.yaml
@@ -17,8 +17,10 @@ google_assistant: !include google_assistant.yaml
 logbook: !include logbook.yaml
 tts: !include tts.yaml
 mqtt: !include mqtt.yaml
-emulated_hue: !include emulated_hue.yaml
+#emulated_hue: !include emulated_hue.yaml
+input_datetime: !include input_datetime.yaml
 
 logger:
   default: warning
+
 

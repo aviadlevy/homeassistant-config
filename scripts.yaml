@@ -7,12 +7,10 @@ set_up_sonos_group:
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
-      - media_player.sonos_kids_bedroom
     action: media_player.volume_mute
   - data:
       group_members:
       - media_player.sonos_living_room
-      - media_player.sonos_kids_bedroom
     target:
       entity_id:
       - media_player.sonos_kitchen
@@ -22,11 +20,6 @@ set_up_sonos_group:
     target:
       entity_id:
       - media_player.sonos_living_room
-    action: media_player.volume_set
-  - data:
-      volume_level: 0.5
-    target:
-      entity_id: media_player.sonos_kids_bedroom
     action: media_player.volume_set
   - data:
       volume_level: 0.4
@@ -44,7 +37,7 @@ set_up_sonos_group:
 run_switcher_from_input:
   alias: Run Switcher From Input
   sequence:
-  - service: switcher_kis.turn_on_with_timer
+  - action: switcher_kis.turn_on_with_timer
     data:
       timer_minutes: '{{ states(''input_number.switcher_timer_box'') | int }}'
     target:
@@ -63,6 +56,7 @@ activate_hyperion:
     target:
       entity_id:
       - switch.hyperion_ng_tv_component_led_device
+      - switch.first_led_hardware_instance_component_blackbar_detection
       - switch.first_led_hardware_instance_component_smoothing
     action: switch.turn_on
   mode: single
@@ -70,33 +64,33 @@ activate_hyperion:
 disable_hyperion:
   alias: Disable Hyperion
   sequence:
-  - service: androidtv.adb_command
-    data:
+  - data:
       command: am start com.abrenoch.hyperiongrabber/com.abrenoch.hyperiongrabber.common.ToggleActivity
     target:
       entity_id: media_player.mitv_adb
+    action: androidtv.adb_command
   - delay:
       hours: 0
       minutes: 0
       seconds: 3
       milliseconds: 0
-  - service: light.turn_on
-    data:
-      color_temp: 500
+  - data:
       brightness_pct: 11
       effect: Solid
+      color_temp_kelvin: 2000
     target:
       entity_id: light.wled_backlight_tv
     enabled: true
-  - service: light.turn_on
-    data:
-      color_temp: 288
+    action: light.turn_on
+  - data:
       brightness_pct: 50
       effect: Solid
       transition: 15
+      color_temp_kelvin: 3472
     target:
       entity_id: light.wled_backlight_tv
     enabled: true
+    action: light.turn_on
   mode: single
 clean_carpet:
   alias: Clean Carpet
@@ -124,7 +118,8 @@ echo_say_the_time:
       tts_platform: google_translate
       message: "{% if now().strftime('%H')|int < 12 and now().strftime('%H')|int >
         4 %}\n   בוקר טוב!\n{% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int
-        < 16 %}\n   אחר הצהריים טובים!\n{% else %}\n   ערב טוב!\n{% endif %}השעה  {{
+        < 15 %}\n   צהריים טובים!\n{% elif now().strftime('%H')|int >= 15 and now().strftime('%H')|int
+        < 18 %}\n   אחר הצהריים טובים!\n{% else %}\n   ערב טוב!\n{% endif %}השעה  {{
         now().strftime('%I') | int }} {% if (now().strftime('%M')|int) != 0 %} ו{{
         now().strftime('%M') }} דקות. {% endif %}"
       chime_path: ding_dong
@@ -170,12 +165,10 @@ set_up_sonos_group_music_casting:
       entity_id:
       - media_player.sonos_living_room
       - media_player.sonos_kitchen
-      - media_player.sonos_kids_bedroom
     action: media_player.volume_mute
   - data:
       group_members:
       - media_player.sonos_living_room
-      - media_player.sonos_kids_bedroom
     target:
       entity_id:
       - media_player.sonos_kitchen
@@ -185,11 +178,6 @@ set_up_sonos_group_music_casting:
     target:
       entity_id:
       - media_player.sonos_living_room
-    action: media_player.volume_set
-  - data:
-      volume_level: 0.4
-    target:
-      entity_id: media_player.sonos_kids_bedroom
     action: media_player.volume_set
   - data:
       volume_level: 0.3
@@ -211,76 +199,133 @@ clean_living_room:
   - action: dreame_vacuum.vacuum_clean_segment
     metadata: {}
     data:
-      segments: 11
-      repeats: 1
+      repeats: 2
+      segments: 5
+      suction_level: 1
     target:
       entity_id: vacuum.dreame_robot_vacuum_d9
   alias: Clean living room
   description: ''
-generate_ai_content:
+generate_ai_flash_content:
   alias: Generate AI content with retry
-  description: Generates AI content using Gemini Pro, retries with Gemini Flash Pro on failure, stores result in input_text entity
+  description: Generates AI content using a designated AI task entity with automatic
+    fallback retry on failure.
   fields:
     prompt_text:
       selector:
         text:
       name: AI Prompt Text
       required: true
-    output_entity:
+    target_ai_task:
       selector:
         entity:
-          domain: input_text
-      name: Output Entity
+          domain: ai_task
+      name: Target AI Task
       required: true
+      default: ai_task.google_ai_task
     fallback_response:
       selector:
         text:
       name: Fallback Response
       required: false
       default: ''
-    normalize_ayala:
-      selector:
-        boolean:
-      name: Normalize Ayala spelling
-      required: false
-      default: true
   sequence:
-  - metadata: {}
+  - variables:
+      agent: error
+      fallback_response: '{{ fallback_response | default('''') }}'
+      fallback_ai_task: "{% if target_ai_task == 'ai_task.google_ai_task_pro' %}\n
+        \ ai_task.google_ai_task\n{% else %}\n  ai_task.google_ai_task_pro\n{% endif
+        %}"
+  - action: ai_task.generate_data
     data:
-      text: '{{ prompt_text }}'
-      agent_id: conversation.gemini_pro
+      instructions: '{{ prompt_text }}'
+      task_name: Morning greeting
+      entity_id: '{{ target_ai_task }}'
     response_variable: agent
-    action: conversation.process
-  - alias: Validate AI response and retry
-    if:
+    continue_on_error: true
+  - if:
     - condition: template
-      value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry, I had a problem getting a response from Google Generative AI." or agent.response[''response_type''] == ''error'' }}'
+      value_template: '{{ not agent or agent == ''error'' or agent.data is not defined
+        }}'
     then:
-    - metadata: {}
+    - action: ai_task.generate_data
       data:
-        text: '{{ prompt_text }}'
-        agent_id: conversation.gemini_flash_pro
+        instructions: '{{ prompt_text }}'
+        task_name: Morning greeting
+        entity_id: '{{ fallback_ai_task }}'
       response_variable: agent
-      action: conversation.process
-    - if:
-      - condition: template
-        value_template: '{{ agent.response[''speech''][''plain''][''speech''] == "Sorry, I had a problem getting a response from Google Generative AI." or agent.response[''response_type''] == ''error'' }}'
-      then:
-      - action: input_text.set_value
-        target:
-          entity_id: '{{ output_entity }}'
-        data:
-          value: '{{ fallback_response if fallback_response != "" else "Unable to generate AI response" }}'
-      else:
-      - action: input_text.set_value
-        target:
-          entity_id: '{{ output_entity }}'
-        data:
-          value: "{% if normalize_ayala %}\n{{ agent.response.speech.plain.speech | replace(\"אילה\", \"אַיָּלָה\") }}\n{% else %}\n{{ agent.response.speech.plain.speech }}\n{% endif %}"
+      continue_on_error: true
+  - if:
+    - condition: template
+      value_template: '{{ not agent or agent == ''error'' or agent.data is not defined
+        }}'
+    then:
+    - variables:
+        ai_response:
+          content: '{{ fallback_response if fallback_response != "" else "Unable to
+            generate AI response" }}'
+    - stop: Failed
+      response_variable: ai_response
     else:
-    - action: input_text.set_value
-      target:
-        entity_id: '{{ output_entity }}'
-      data:
-        value: "{% if normalize_ayala %}\n{{ agent.response.speech.plain.speech | replace(\"אילה\", \"אַיָּלָה\") }}\n{% else %}\n{{ agent.response.speech.plain.speech }}\n{% endif %}"
+    - variables:
+        ai_response:
+          content: '{{ agent.data if agent.data is string else (agent.data.text |
+            default(agent.data | string)) }}'
+    - stop: Success
+      response_variable: ai_response
+  mode: single
+closet_light_flash:
+  sequence:
+  - action: scene.create
+    metadata: {}
+    data:
+      scene_id: closet_before
+      snapshot_entities:
+      - light.closet_bulb
+  - action: light.turn_on
+    target:
+      entity_id: light.closet_bulb
+    data:
+      flash: short
+      color_temp_kelvin: 2000
+      brightness_pct: 4
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - action: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.closet_before
+    data: {}
+  - action: scene.delete
+    metadata: {}
+    target:
+      entity_id: scene.closet_before
+    data: {}
+  alias: Closet Light Flash
+  description: ''
+normalize_kids_names:
+  alias: Normalize kids names
+  description: Takes input text and normalizes kids' names to include full Nikud while
+    preserving all other original text and Nikud.
+  fields:
+    input_text:
+      selector:
+        text:
+      name: Input Text
+      required: true
+  sequence:
+  - variables:
+      raw_text: '{{ input_text | default('''') }}'
+      normalized_text: "{{ raw_text \n   | regex_replace(\"א[ְִֵֶַָֹֻּ]*י[ְִֵֶַָֹֻּ]*י?[ְִֵֶַָֹֻּ]*ל[ְִֵֶַָֹֻּ]*ה\",
+        \"אַיָּלָה\") \n   | regex_replace(\"א[ְִֵֶַָֹֻּ]*ו[ְִֵֶַָֹֻּ]*ר[ְִֵֶַָֹֻּ]*י\",
+        \"אוֹרִי\") \n   | regex_replace(\"י[ְִֵֶַָֹֻּ]*א[ְִֵֶַָֹֻּ]*י[ְִֵֶַָֹֻּ]*ר\",
+        \"יָאִיר\") }}"
+  - variables:
+      normalized_response:
+        content: '{{ normalized_text }}'
+  - stop: Normalized successfully
+    response_variable: normalized_response
   mode: single
