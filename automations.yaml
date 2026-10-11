@@ -1012,9 +1012,20 @@
           after: 00:00:00
           before: input_datetime.shabbat_lights_out
         then:
-        - action: scene.turn_on
-          target:
-            entity_id: scene.shabbat_1_evening
+        - action: retry.actions
+          data:
+            sequence:
+            - action: scene.turn_on
+              target:
+                entity_id: scene.shabbat_1_evening
+            retries: 5
+            backoff: '[[ 2 * 2 ** attempt ]]'
+            on_error:
+            - action: notify.mobile_app_aviad_phone
+              data:
+                title: אוטומציית שבת נתקעה
+                message: ' '
+          alias: Activate Evening Scene with Retry
         - data: {}
           target:
             entity_id: light.bed_led_strip
@@ -1028,9 +1039,20 @@
         data:
           position: 9
         action: cover.set_cover_position
-      - action: scene.turn_on
-        target:
-          entity_id: scene.shabbat_2_goodnight
+      - action: retry.actions
+        data:
+          sequence:
+          - action: scene.turn_on
+            target:
+              entity_id: scene.shabbat_2_goodnight
+          retries: 5
+          backoff: '[[ 2 * 2 ** attempt ]]'
+          on_error:
+          - action: notify.mobile_app_aviad_phone
+            data:
+              title: אוטומציית שבת נתקעה
+              message: ' '
+        alias: Activate Goodnight Scene with Retry
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_house
@@ -1049,15 +1071,35 @@
             attribute: current_position
             below: 20
         then:
-        - target:
-            entity_id: scene.shabbat_3_morning_cloudy
-          metadata: {}
-          action: scene.turn_on
+        - action: retry.actions
+          data:
+            sequence:
+            - action: scene.turn_on
+              target:
+                entity_id: scene.shabbat_3_morning_cloudy
+            retries: 5
+            backoff: '[[ 2 * 2 ** attempt ]]'
+            on_error:
+            - action: notify.mobile_app_aviad_phone
+              data:
+                title: אוטומציית שבת נתקעה
+                message: ' '
+          alias: Activate Cloudy Morning Scene with Retry
         else:
-        - target:
-            entity_id: scene.shabbat_3_morning
-          metadata: {}
-          action: scene.turn_on
+        - action: retry.actions
+          data:
+            sequence:
+            - action: scene.turn_on
+              target:
+                entity_id: scene.shabbat_3_morning
+            retries: 5
+            backoff: '[[ 2 * 2 ** attempt ]]'
+            on_error:
+            - action: notify.mobile_app_aviad_phone
+              data:
+                title: אוטומציית שבת נתקעה
+                message: ' '
+          alias: Activate Morning Scene with Retry
     - conditions:
       - condition: trigger
         id: shabbat_3_morning_meal
@@ -1076,10 +1118,20 @@
             attribute: current_position
             below: 20
         then:
-        - target:
-            entity_id: scene.shabbat_3_morning_cloudy
-          metadata: {}
-          action: scene.turn_on
+        - action: retry.actions
+          data:
+            sequence:
+            - action: scene.turn_on
+              target:
+                entity_id: scene.shabbat_3_morning_cloudy
+            retries: 5
+            backoff: '[[ 2 * 2 ** attempt ]]'
+            on_error:
+            - action: notify.mobile_app_aviad_phone
+              data:
+                title: אוטומציית שבת נתקעה
+                message: ' '
+          alias: Activate Cloudy Morning Meal Scene with Retry
     - conditions:
       - condition: trigger
         id: shabbat_4_day_house
@@ -1094,16 +1146,38 @@
         entity_id: sensor.pirateweather_cloud_coverage
         below: 60
       sequence:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.shabbat_2_goodnight
+      - action: retry.actions
+        data:
+          sequence:
+          - action: scene.turn_on
+            target:
+              entity_id: scene.shabbat_2_goodnight
+          retries: 5
+          backoff: '[[ 2 * 2 ** attempt ]]'
+          on_error:
+          - action: notify.mobile_app_aviad_phone
+            data:
+              title: אוטומציית שבת נתקעה
+              message: ' '
+        alias: Activate Day Scene with Retry
     - conditions:
       - condition: trigger
         id: shabbat_5_sunset_house
       sequence:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.shabbat_0_sunset
+      - action: retry.actions
+        data:
+          sequence:
+          - action: scene.turn_on
+            target:
+              entity_id: scene.shabbat_0_sunset
+          retries: 5
+          backoff: '[[ 2 * 2 ** attempt ]]'
+          on_error:
+          - action: notify.mobile_app_aviad_phone
+            data:
+              title: אוטומציית שבת נתקעה
+              message: ' '
+        alias: Activate Sunset Scene with Retry
     default: []
   mode: queued
   max: 10
