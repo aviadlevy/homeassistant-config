@@ -4261,25 +4261,25 @@
   - action: template.reload
     metadata: {}
     data: {}
+  - variables:
+      parked_zone: >-
+        {%- set match = namespace(name='') -%}
+        {%- for zone in ['zone.home', 'zone.dar_s_home'] -%}
+          {%- if distance(lat, lon, zone) | float(999999) < 0.4 -%}
+            {%- set match.name = state_attr(zone, 'friendly_name') or zone -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {{- match.name -}}
   - if:
     - condition: template
-      value_template: >
-        {% set zones = ['zone.home', 'zone.dar_s_home'] %}
-        {% set parked_in_zone = namespace(value=false) %}
-        {% for zone in zones %}
-          {% if distance(lat, lon, zone) | float(999999) < 0.4 %}
-            {% set parked_in_zone.value = true %}
-          {% endif %}
-        {% endfor %}
-        {{ parked_in_zone.value }}
+      value_template: '{{ parked_zone != '''' }}'
     then:
     - metadata: {}
       data:
         config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
         chat_id:
         - '-4738468398'
-        message: You parked in a no\-reminder zone\. No reminder needed
-        parse_mode: markdownv2
+        message: You parked at {{ parked_zone }}. No reminder needed
         title: Hi {{ display_name }}
       action: telegram_bot.send_message
     - metadata: {}
