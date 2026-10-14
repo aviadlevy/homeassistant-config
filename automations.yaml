@@ -4261,18 +4261,25 @@
   - action: template.reload
     metadata: {}
     data: {}
+  - variables:
+      parked_zone: >-
+        {%- set match = namespace(name='') -%}
+        {%- for zone in ['zone.home', 'zone.dar_s_home'] -%}
+          {%- if distance(lat, lon, zone) | float(999999) < 0.4 -%}
+            {%- set match.name = state_attr(zone, 'friendly_name') or zone -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {{- match.name -}}
   - if:
-    - condition: numeric_state
-      entity_id: number.distance_from_car_to_home
-      below: 0.4
+    - condition: template
+      value_template: '{{ parked_zone != '''' }}'
     then:
     - metadata: {}
       data:
         config_entry_id: 01JZ6526B5R80Y7SC1WM9QM3FC
         chat_id:
         - '-4738468398'
-        message: You parked at home\. No reminder needed
-        parse_mode: markdownv2
+        message: You parked at {{ parked_zone }}. No reminder needed
         title: Hi {{ display_name }}
       action: telegram_bot.send_message
     - metadata: {}
