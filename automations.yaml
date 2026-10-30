@@ -5080,40 +5080,50 @@
       response_format: json
       description_field: description
       provider: 01KM8Z96X8HN4QYFR9YHBNF2Q3
-      message: "Extract prayer times from the image into a JSON object. Pay strict
-        attention to horizontal row alignment between the times on the left and the
-        Hebrew text on the right.\n\n### 1. Strict Extraction Rules & Row Alignment\n*
-        **\"shabbat\"**: Use times from the \"שבת\" section only.\n    * **shacharit**:
-        Extract ONLY the time aligned with \"שחרית מניין ב'\" (Minyan B).\n    * **mincha**:
-        Extract the time aligned with the exact word \"מנחה\". WARNING: Do NOT use
-        the time for \"דף יומי\" which is directly above it.\n    * **maariv**: Extract
-        ONLY the time aligned with \"צאת השבת, ערבית\". WARNING: Do NOT use the time
-        for \"ערבית (חזון)\" which is directly above it.\n* **\"regular_day\"**: Use
-        times from the \"במשך השבוע\" section only.\n    * **mincha**: Extract the
-        time aligned with the exact word \"מנחה\". WARNING: Do NOT use the time for
-        \"דף יומי\" which is directly above it.\n    * **maariv**: Extract ONLY the
-        time aligned with \"ערבית א'\".\n* **Skip Entirely**: Erev Shabbat (ערב שבת),
-        Daf Yomi (דף יומי), classes (שיעור), and Tehillim.\n\n### 2. Key Mapping\n*
-        שחרית -> `\"shacharit\"`\n* מנחה גדולה -> `\"mincha_gedola\"`\n* מנחה -> `\"mincha\"`\n*
-        ערבית -> `\"maariv\"`"
+      message: "Extract prayer times from the image into a JSON object. Pay strict attention\
+        \ to horizontal row alignment between the times on the left and the Hebrew text\
+        \ on the right.\n\n### 1. Strict Extraction Rules & Row Alignment\n* **\"erev_shabbat\"\
+        **: Use times from the \"ערב שבת\" section only.\n    * **kabbalat_shabbat**: Extract\
+        \ ONLY the time aligned with \"מנחה וקבלת שבת\". WARNING: Do NOT use the plain \"\
+        מנחה\" (early mincha) or \"הדלקת נרות\" (candle lighting), which are above it.\n\
+        * **\"shabbat\"**: Use times from the \"שבת\" section only.\n    * **shacharit**:\
+        \ Extract ONLY the time aligned with \"שחרית מניין ב'\" (Minyan B).\n    * **mincha_gedola**:\
+        \ Extract the time aligned with \"מנחה גדולה\".\n    * **mincha**: Extract the time\
+        \ aligned with the exact word \"מנחה\". WARNING: Do NOT use the time for \"דף יומי\"\
+        \ which is directly above it.\n    * **maariv**: Extract ONLY the time aligned with\
+        \ \"צאת השבת, ערבית\". WARNING: Do NOT use the time for any \"ערבית (...)\" row\
+        \ (the word in parentheses changes weekly) which is directly above it.\n* **\"regular_day\"\
+        **: Use times from the \"מנחה וערבית\" subsection of the \"במשך השבוע\" section\
+        \ only. Ignore its \"שחרית\" subsection.\n    * **mincha**: Extract the time aligned\
+        \ with the exact word \"מנחה\". WARNING: Do NOT use the time for \"מנחה גדולה\"\
+        \ or \"דף יומי\".\n    * **maariv**: Extract ONLY the time aligned with \"ערבית\
+        \ א'\".\n* **Skip Entirely**: Daf Yomi (דף יומי), classes (שיעור), Tehillim, and\
+        \ every other \"ערב שבת\" row.\n\n### 2. Key Mapping\n* מנחה וקבלת שבת -> `\"kabbalat_shabbat\"\
+        `\n* שחרית -> `\"shacharit\"`\n* מנחה גדולה -> `\"mincha_gedola\"`\n* מנחה -> `\"\
+        mincha\"`\n* ערבית -> `\"maariv\"`"
       image_file: '{{ file_path.file_path }}'
       title_field: title
-      structure: "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"shabbat\":
-        {\n      \"type\": \"object\",\n      \"properties\": {\n        \"shacharit\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"mincha_gedola\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"mincha\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"maariv\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      },\n      \"required\":
-        [\"shacharit\", \"mincha_gedola\", \"mincha\", \"maariv\"]\n    },\n    \"regular_day\":
-        {\n      \"type\": \"object\",\n      \"properties\": {\n        \"mincha\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"maariv\":
-        { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      },\n      \"required\":
-        [\"mincha\", \"maariv\"]\n    }\n  },\n  \"required\": [\"shabbat\", \"regular_day\"]\n}"
+      structure: "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"erev_shabbat\"\
+        : {\n      \"type\": \"object\",\n      \"properties\": {\n        \"kabbalat_shabbat\"\
+        : { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      },\n     \
+        \ \"required\": [\"kabbalat_shabbat\"]\n    },\n    \"shabbat\": {\n      \"type\"\
+        : \"object\",\n      \"properties\": {\n        \"shacharit\": { \"type\": \"array\"\
+        , \"items\": { \"type\": \"string\" } },\n        \"mincha_gedola\": { \"type\"\
+        : \"array\", \"items\": { \"type\": \"string\" } },\n        \"mincha\": { \"type\"\
+        : \"array\", \"items\": { \"type\": \"string\" } },\n        \"maariv\": { \"type\"\
+        : \"array\", \"items\": { \"type\": \"string\" } }\n      },\n      \"required\"\
+        : [\"shacharit\", \"mincha_gedola\", \"mincha\", \"maariv\"]\n    },\n    \"regular_day\"\
+        : {\n      \"type\": \"object\",\n      \"properties\": {\n        \"mincha\": {\
+        \ \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"maariv\"\
+        : { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      },\n     \
+        \ \"required\": [\"mincha\", \"maariv\"]\n    }\n  },\n  \"required\": [\"erev_shabbat\"\
+        , \"shabbat\", \"regular_day\"]\n}"
     response_variable: llm_response
   - variables:
       sched: '{{ llm_response.structured_response }}'
       success_list: "{%- set ns = namespace(items=[]) -%} {%- set mapping = [\n  {'day':
-        'shabbat', 'pray': 'shacharit', 'name': 'Shabbat Shacharit'},\n  {'day': 'shabbat',
+        'erev_shabbat', 'pray': 'kabbalat_shabbat', 'name': 'Erev Shabbat Kabbalat
+        Shabbat'},\n  {'day': 'shabbat', 'pray': 'shacharit', 'name': 'Shabbat Shacharit'},\n  {'day': 'shabbat',
         'pray': 'mincha_gedola', 'name': 'Shabbat Mincha Gedola'},\n  {'day': 'shabbat',
         'pray': 'mincha', 'name': 'Shabbat Mincha'},\n  {'day': 'shabbat', 'pray':
         'maariv', 'name': 'Shabbat Maariv'},\n  {'day': 'regular_day', 'pray': 'mincha',
@@ -5124,6 +5134,9 @@
         -%}\n  {%- endif -%}\n{%- endfor -%} {{ ns.items | join('\\n') }}"
   - repeat:
       for_each:
+      - day: erev_shabbat
+        pray: kabbalat_shabbat
+        entity: input_datetime.erev_shabbat_kabbalat
       - day: shabbat
         pray: shacharit
         entity: input_datetime.shabbat_shacharit
@@ -5167,6 +5180,11 @@
   alias: Prayer Reminders
   description: Consolidated Shabbat TTS and Weekday Telegram reminders
   triggers:
+  - trigger: time
+    at:
+      entity_id: input_datetime.erev_shabbat_kabbalat
+      offset: -00:10:00
+    id: מנחה וקבלת שבת_shabbat
   - trigger: time
     at:
       entity_id: input_datetime.shabbat_shacharit

@@ -1,4 +1,8 @@
 
+erev_shabbat_kabbalat:
+  name: "Erev Shabbat Mincha & Kabbalat Shabbat"
+  has_date: false
+  has_time: true
 shabbat_shacharit:
   name: "Shabbat Shacharit"
   has_date: false
