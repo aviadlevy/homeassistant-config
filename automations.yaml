@@ -5184,7 +5184,7 @@
     at:
       entity_id: input_datetime.erev_shabbat_kabbalat
       offset: -00:10:00
-    id: מנחה_וקבלת_שבת_shabbat
+    id: מנחה וקבלת שבת_shabbat
   - trigger: time
     at:
       entity_id: input_datetime.shabbat_shacharit
@@ -5236,8 +5236,7 @@
           - media_player.sonos_living_room
           - media_player.bedroom_echo_dot
         data:
-          message: תזכורת, תפילת {{ trigger.id.rsplit('_', 1)[0] | replace('_', ' ')
-            }} תתחיל בעוד עשר דקות
+          message: תזכורת, תפילת {{ trigger.id.split('_')[0] }} תתחיל בעוד עשר דקות
           chime_path: choir
           cache: true
           tts_platform: google_translate
